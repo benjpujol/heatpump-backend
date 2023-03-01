@@ -23,9 +23,9 @@ class WindowType(DjangoObjectType):
 class WallInput(graphene.InputObjectType):
     id = graphene.ID()
     wall_area = graphene.Int()
-    wall_height = graphene.String()
-    wall_insulation_u_value = graphene.String()
-    wall_heat_loss = graphene.Int()
+    wall_height = graphene.Int()
+    wall_insulation_u_value = graphene.Float()
+    wall_heat_loss = graphene.Float()
     building = graphene.ID()
 
 
@@ -67,6 +67,6 @@ class Query(graphene.ObjectType):
 
 class Mutation(graphene.ObjectType):
     create_wall = CreateWall.Field()
-    
+
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
