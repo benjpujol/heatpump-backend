@@ -8,7 +8,6 @@ class IncomeCategory(models.Model):
     upper_income_bound_3 = models.PositiveIntegerField(default = 38184)
 
     
-   
 
 class Subsidy(models.Model):
     # define the subsidy amount for an equipment type and income category
