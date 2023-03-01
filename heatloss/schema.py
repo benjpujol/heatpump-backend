@@ -1,6 +1,8 @@
 import graphene
 from graphene_django import DjangoObjectType
 from heatloss.models import Wall, Roof, Floor, Window
+from customers.schema import CustomerInput
+from customers.model import Building
 
 class WallType(DjangoObjectType):
     class Meta:
