@@ -69,19 +69,24 @@ class UpdateWallByBuildingId(graphene.Mutation):
 
     @staticmethod
     def mutate(root, info, input=None):
-        wall_instance = Wall.objects.get(pk=input.id)
-        if wall_instance:
-            wall_instance.wall_area = input.wall_area
-            wall_instance.wall_height = input.wall_height
-            wall_instance.wall_insulation_u_value = input.wall_insulation_u_value
-            wall_instance.wall_heat_loss = input.wall_heat_loss
-            wall_instance.building_id = input.building
-            wall_instance.save()
-            return UpdateWallByBuildingId(wall=wall_instance)
-        return UpdateWallByBuildingId(wall=None)
-
-
-
+        building_instance = Building.objects.get(pk=input.building.id)
+        if building_instance:
+            wall_instance = Wall.objects.get(building_id=building_instance.id)
+            if wall_instance:
+                if input.wall_area:
+                    wall_instance.wall_area = input.wall_area
+                if input.wall_height:
+                    wall_instance.wall_height = input.wall_height
+                if input.wall_insulation_u_value:
+                    wall_instance.wall_insulation_u_value = input.wall_insulation_u_value
+                if input.wall_heat_loss:
+                    wall_instance.wall_heat_loss = input.wall_heat_loss
+                if input.building:
+                    wall_instance.building = building_instance
+                wall_instance.save()
+                return UpdateWallByBuildingId(wall=wall_instance)
+            return UpdateWallByBuildingId(wall=None)
+     
     
 
     
@@ -110,7 +115,7 @@ class Mutation(graphene.ObjectType):
     create_wall = CreateWall.Field()
     update_wall_by_building_id = UpdateWallByBuildingId.Field()
 
-    
+
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
