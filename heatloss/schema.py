@@ -19,22 +19,7 @@ class WindowType(DjangoObjectType):
         model = Window
 
 
-## Building
-# Building input type
-class BuildingInput(graphene.InputObjectType):
-    id = graphene.Int()
-    year_built = graphene.Int()
-    square_footage = graphene.Int()
-    number_of_floors = graphene.Int()
-    occupancy_status = graphene.String()
-    residence_type = graphene.String()
-    primary_heating_system = graphene.String()
-    secondary_heating_system =  graphene.String()
-    hot_water_system = graphene.String()
-    temperature_setpoint = graphene.Int()
-    annual_energy_bill =  graphene.Int()
-    annual_energy_consumption =  graphene.Int()      
-    customer = graphene.Field(CustomerInput, required=True)
+
 
 ## Wall
 # Wall input type
