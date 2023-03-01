@@ -18,6 +18,33 @@ class WindowType(DjangoObjectType):
     class Meta:
         model = Window
 
+## Wall
+# Wall input type
+class WallInput(graphene.InputObjectType):
+    id = graphene.ID()
+    wall_area = graphene.Int()
+    wall_height = graphene.String()
+    wall_insulation_u_value = graphene.String()
+    wall_heat_loss = graphene.Int()
+    building = graphene.ID()
+
+
+# mutation to create wall
+class CreateWall(graphene.Mutation):
+    class Arguments:
+        input = WallInput(required=True)
+
+    wall = graphene.Field(WallType)
+
+    @staticmethod
+    def mutate(root, info, input=None):
+        wall_instance = Wall(wall_area=input.wall_area, wall_height=input.wall_height, wall_insulation_u_value=input.wall_insulation_u_value, wall_heat_loss=input.wall_heat_loss, building_id=input.building)
+        wall_instance.save()
+        return CreateWall(wall=wall_instance)
+
+
+    
+
 class Query(graphene.ObjectType):
     walls = graphene.List(WallType)
     roofs = graphene.List(RoofType)
@@ -36,7 +63,10 @@ class Query(graphene.ObjectType):
     def resolve_windows(self, info, **kwargs):
         return Window.objects.all()
 
-class Mutation(graphene.ObjectType):
-    pass
 
-schema = graphene.Schema(query=Query)
+
+class Mutation(graphene.ObjectType):
+    create_wall = CreateWall.Field()
+    
+
+schema = graphene.Schema(query=Query, mutation=Mutation)
