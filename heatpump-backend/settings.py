@@ -59,7 +59,8 @@ INSTALLED_APPS = [
      'corsheaders',
     'mainapp.apps.MainappConfig',
     'subsidies.apps.SubsidiesConfig',
-    'whitenoise.runserver_nostatic'
+    'heatloss.apps.HeatlossConfig',
+        'whitenoise.runserver_nostatic'
 
 ]
 

@@ -5,11 +5,12 @@ from graphql_jwt.decorators import login_required
 from mainapp.schema import Query as Query1
 from mainapp.schema import Mutation as Mutation1
 from subsidies.schema import Query as Query2
+from heatloss.schema import Query as Query3
 
 
 
 # Define the root query and mutation for the combined schema
-class Query(Query1, Query2, ObjectType):
+class Query(Query1, Query2, Query3, ObjectType):
     pass
 
 
