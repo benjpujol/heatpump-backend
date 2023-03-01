@@ -1,8 +1,6 @@
 import graphene
 from graphene_django import DjangoObjectType
 from heatloss.models import Wall, Roof, Floor, Window
-from mainapp.schema import CustomerInput
-from mainapp.model import Building
 
 class WallType(DjangoObjectType):
     class Meta:
@@ -62,34 +60,7 @@ class CreateWall(graphene.Mutation):
         wall_instance.save()
         return CreateWall(wall=wall_instance)
 
-# mutation to update wall info based on building
-class UpdateWallByBuildingId(graphene.Mutation):
-    class Arguments:
-        input = WallInput(required=True)
 
-    wall = graphene.Field(WallType)
-
-    @staticmethod
-    def mutate(root, info, input=None):
-        building_instance = Building.objects.get(pk=input.building.id)
-        if building_instance:
-            wall_instance = Wall.objects.get(building_id=building_instance.id)
-            if wall_instance:
-                if input.wall_area:
-                    wall_instance.wall_area = input.wall_area
-                if input.wall_height:
-                    wall_instance.wall_height = input.wall_height
-                if input.wall_insulation_u_value:
-                    wall_instance.wall_insulation_u_value = input.wall_insulation_u_value
-                if input.wall_heat_loss:
-                    wall_instance.wall_heat_loss = input.wall_heat_loss
-                if input.building:
-                    wall_instance.building = building_instance
-                wall_instance.save()
-                return UpdateWallByBuildingId(wall=wall_instance)
-            return UpdateWallByBuildingId(wall=None)
-     
-    
 
     
 
@@ -115,9 +86,6 @@ class Query(graphene.ObjectType):
 
 class Mutation(graphene.ObjectType):
     create_wall = CreateWall.Field()
-    update_wall_by_building_id = UpdateWallByBuildingId.Field()
-
-
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
