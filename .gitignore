@@ -28,6 +28,7 @@ __pycache__/
 *.sqlite3
 *.db
 
+
 # Ignore local settings
 local_settings.py
 
@@ -38,6 +39,7 @@ logs/
 # Ignore media and static files
 media/
 static/
+staticfiles/
 
 # Ignore generated files
 *.egg-info/

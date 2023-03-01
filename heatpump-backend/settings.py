@@ -102,18 +102,18 @@ WSGI_APPLICATION = 'heatpump-backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-db_from_env = dj_database_url.config(conn_max_age=600)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'main_database',
-        'USER': 'macbook',
-        'PASSWORD': '123456',
-        'HOST': '127.0.0.1',
+        'NAME': 'd43khpo0035qr2',
+        'USER': 'favqdkaldktbef',
+        'PASSWORD': '2e00174f941018c67e5664b6e92a9992bfa037b6735695c7a622a8a636588b30',
+        'HOST': 'ec2-63-35-156-160.eu-west-1.compute.amazonaws.com',
         'PORT': '5432',
     }
 }
-DATABASES['default'].update(db_from_env)
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
