@@ -1,0 +1,52 @@
+# Ignore virtual environment files
+venv/
+*/venv/
+env/
+*/env/
+ENV/
+*/ENV/
+env.bak/
+*/env.bak/
+.venv/
+*/.venv/
+.pip-cache/
+*/.pip-cache/
+pip-selfcheck.json
+
+# Ignore project-specific files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py~
+*.DS_Store
+*.bak
+*.swp
+*~
+
+# Ignore database files
+*.sqlite3
+*.db
+
+# Ignore local settings
+local_settings.py
+
+# Ignore log files
+logs/
+*.log
+
+# Ignore media and static files
+media/
+static/
+
+# Ignore generated files
+*.egg-info/
+dist/
+build/
+
+
+
+
+
+
+
