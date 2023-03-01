@@ -18,6 +18,24 @@ class WindowType(DjangoObjectType):
     class Meta:
         model = Window
 
+
+## Building
+# Building input type
+class BuildingInput(graphene.InputObjectType):
+    id = graphene.Int()
+    year_built = graphene.Int()
+    square_footage = graphene.Int()
+    number_of_floors = graphene.Int()
+    occupancy_status = graphene.String()
+    residence_type = graphene.String()
+    primary_heating_system = graphene.String()
+    secondary_heating_system =  graphene.String()
+    hot_water_system = graphene.String()
+    temperature_setpoint = graphene.Int()
+    annual_energy_bill =  graphene.Int()
+    annual_energy_consumption =  graphene.Int()      
+    customer = graphene.Field(CustomerInput, required=True)
+
 ## Wall
 # Wall input type
 class WallInput(graphene.InputObjectType):
@@ -26,7 +44,7 @@ class WallInput(graphene.InputObjectType):
     wall_height = graphene.Int()
     wall_insulation_u_value = graphene.Float()
     wall_heat_loss = graphene.Float()
-    building = graphene.ID()
+    building = graphene.Field(BuildingInput, required=True)
 
 
 # mutation to create wall
@@ -42,6 +60,29 @@ class CreateWall(graphene.Mutation):
         wall_instance.save()
         return CreateWall(wall=wall_instance)
 
+# mutation to update wall info based on building
+class UpdateWallByBuildingId(graphene.Mutation):
+    class Arguments:
+        input = WallInput(required=True)
+
+    wall = graphene.Field(WallType)
+
+    @staticmethod
+    def mutate(root, info, input=None):
+        wall_instance = Wall.objects.get(pk=input.id)
+        if wall_instance:
+            wall_instance.wall_area = input.wall_area
+            wall_instance.wall_height = input.wall_height
+            wall_instance.wall_insulation_u_value = input.wall_insulation_u_value
+            wall_instance.wall_heat_loss = input.wall_heat_loss
+            wall_instance.building_id = input.building
+            wall_instance.save()
+            return UpdateWallByBuildingId(wall=wall_instance)
+        return UpdateWallByBuildingId(wall=None)
+
+
+
+    
 
     
 
@@ -67,6 +108,9 @@ class Query(graphene.ObjectType):
 
 class Mutation(graphene.ObjectType):
     create_wall = CreateWall.Field()
+    update_wall_by_building_id = UpdateWallByBuildingId.Field()
+
+    
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
