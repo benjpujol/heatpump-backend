@@ -3,14 +3,16 @@ from graphene_django import DjangoObjectType
 from mainapp.models import Customer, Building, Estimate
 
 #create basic schema for customer in graphene
-class CustomerType(DjangoObjectType):
-    class Meta:
-        model = Customer
 
 #create basic schema for building in graphene
 class BuildingType(DjangoObjectType):
     class Meta:
         model = Building
+    
+    heat_loss = graphene.Float()
+
+    def resolve_heat_loss(self, info):
+        return self.heat_loss()
 
 #create basic schema for estimate in graphene
 class EstimateType(DjangoObjectType):
@@ -20,6 +22,11 @@ class EstimateType(DjangoObjectType):
 
 
 ## Customer
+
+class CustomerType(DjangoObjectType):
+    class Meta:
+        model = Customer
+
 
 class CustomerInput(graphene.InputObjectType):
     id = graphene.Int(required=True)
@@ -39,21 +46,13 @@ class CreateCustomer(graphene.Mutation):
 
     customer = graphene.Field(CustomerType)
 
-    def mutate(self, info, first_name, last_name, email, phone, address, eligible_for_subsidy, tax_household_size, tax_income_category):
-        customer = Customer(first_name=first_name, last_name=last_name, email=email, phone=phone, address=address, eligible_for_subsidy=eligible_for_subsidy, tax_household_size=tax_household_size, tax_income_category=tax_income_category)
-        customer.save()
+    def mutate(self, info, input=None):
+        print("Here is the customer:")
+        customer_instance = Customer(first_name=input.first_name,last_name=input.last_name,email=input.email,phone=input.phone,address=input.address,eligible_for_subsidy=input.eligible_for_subsidy,tax_household_size=input.tax_household_size,tax_income_category=input.tax_income_category)
+        print("Done")
+        customer_instance.save()
 
-        return CreateCustomer(
-            id=customer.id,
-            first_name=customer.first_name,
-            last_name=customer.last_name,
-            email=customer.email,
-            phone=customer.phone,
-            address=customer.address,
-            eligible_for_subsidy=customer.eligible_for_subsidy,
-            tax_household_size=customer.tax_household_size,
-            tax_income_category=customer.tax_income_category,
-        )
+        return CreateCustomer(customer=customer_instance)
 
 #  mutation to update customer info based on id
 
@@ -208,12 +207,22 @@ class Query(graphene.ObjectType):
     buildings = graphene.List(BuildingType)
     building_by_customer_id = graphene.Field(BuildingType, customer=graphene.Int(required=True))
 
+    # query to return the heat loss of a building
+    building_heat_loss = graphene.Float(id=graphene.Int(required=True))
+
     def resolve_buildings(self, info):
         return Building.objects.all()
     
     def resolve_building_by_customer_id(self, info, customer):
         try :
             return Building.objects.get(customer=customer)
+        except Building.DoesNotExist:
+            return None
+
+    def resolve_building_heat_loss(self, info, id):
+        try :
+            building = Building.objects.get(id=id)
+            return building.heat_loss
         except Building.DoesNotExist:
             return None
 

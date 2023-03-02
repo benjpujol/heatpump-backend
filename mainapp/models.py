@@ -1,5 +1,8 @@
 from django.db import models
 from subsidies.utils import calculate_subsidy
+# import module from subsidies app
+from subsidies.utils import calculate_subsidy
+
 
 
 # Create customer model
@@ -53,6 +56,29 @@ class Building(models.Model):
             estimate.energy_cerficate_amount = subsidies["energy_cerficate_amount"]
             estimate.save()
 
+    # function to calculate the heat loss of the building
+    def heat_loss(self):
+        # calculate the heat loss per kelvin (W/K) of the building based on its wall and roof
+        heat_loss_per_kelvin = 0
+        print("Calling the heat loss function")
+        # iterate over each wall associated with the building
+        for wall in self.wall_set.all():
+            # calculate the heat loss of the wall
+            heat_loss_per_kelvin += wall.heat_loss()
+        # iterate over each roof associated with the building
+        for roof in self.roof_set.all():
+            # calculate the heat loss of the roof
+            heat_loss_per_kelvin += roof.heat_loss()
+        for floor in self.floor_set.all():
+            # calculate the heat loss of the roof
+            heat_loss_per_kelvin += floor.heat_loss()
+        
+        # calculate the heat loss of the building
+        # reference temperature is hardcode to -7 degrees
+        heat_loss = heat_loss_per_kelvin * (self.temperature_setpoint + 7)
+        
+        return heat_loss
+
 # Create project class
 class Estimate(models.Model):
     id = models.AutoField(primary_key=True)
@@ -75,3 +101,13 @@ class Estimate(models.Model):
             self.energy_certificate_amount = energy_cerficate_amount
         super().save(*args, **kwargs)
     
+
+if __name__ == "__main__":
+    # get the building with id 2
+    building = Building.objects.get(id=2)
+
+    # call the heat loss function
+    heat_loss = building.heat_loss()
+    
+    #print the heat loss
+    print(heat_loss)

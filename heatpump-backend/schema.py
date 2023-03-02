@@ -6,6 +6,7 @@ from mainapp.schema import Query as Query1
 from mainapp.schema import Mutation as Mutation1
 from subsidies.schema import Query as Query2
 from heatloss.schema import Query as Query3
+from heatloss.schema import Mutation as Mutation2
 
 
 
@@ -15,7 +16,7 @@ class Query(Query1, Query2, Query3, ObjectType):
     pass
 
 
-class Mutation(Mutation1, ObjectType):
+class Mutation(Mutation1, Mutation2,  ObjectType):
     pass
 
 
