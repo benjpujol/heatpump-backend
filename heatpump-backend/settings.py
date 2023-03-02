@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'mainapp.apps.MainappConfig',
     'subsidies.apps.SubsidiesConfig',
     'heatloss.apps.HeatlossConfig',
+    'catalog.apps.CatalogConfig',
         'whitenoise.runserver_nostatic'
 
 ]

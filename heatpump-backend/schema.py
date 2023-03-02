@@ -7,12 +7,13 @@ from mainapp.schema import Mutation as Mutation1
 from subsidies.schema import Query as Query2
 from heatloss.schema import Query as Query3
 from heatloss.schema import Mutation as Mutation2
-
+from catalog.schema import Query as Query4
+from catalog.schema import Mutation as Mutation3
 
 
 
 # Define the root query and mutation for the combined schema
-class Query(Query1, Query2, Query3, ObjectType):
+class Query(Query1, Query2, Query3, Query4, ObjectType):
     pass
 
 
