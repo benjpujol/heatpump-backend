@@ -21,9 +21,8 @@ class EstimateType(DjangoObjectType):
 
 ## Customer
 
-# mutation to create customer
-class CreateCustomer(graphene.Mutation):
-    id = graphene.Int()
+class CustomerInput(graphene.InputObjectType):
+    id = graphene.Int(required=True)
     first_name = graphene.String()
     last_name = graphene.String()
     email = graphene.String()
@@ -32,17 +31,13 @@ class CreateCustomer(graphene.Mutation):
     eligible_for_subsidy = graphene.Boolean()
     tax_household_size = graphene.Int()
     tax_income_category = graphene.Int()
-    
-    
+
+# mutation to create customer
+class CreateCustomer(graphene.Mutation):    
     class Arguments:
-        first_name = graphene.String()
-        last_name = graphene.String()
-        email = graphene.String()
-        phone = graphene.String()
-        address = graphene.String()
-        eligible_for_subsidy = graphene.Boolean()
-        tax_household_size = graphene.Int()
-        tax_income_category = graphene.Int()
+        input = CustomerInput(required=True)
+
+    customer = graphene.Field(CustomerType)
 
     def mutate(self, info, first_name, last_name, email, phone, address, eligible_for_subsidy, tax_household_size, tax_income_category):
         customer = Customer(first_name=first_name, last_name=last_name, email=email, phone=phone, address=address, eligible_for_subsidy=eligible_for_subsidy, tax_household_size=tax_household_size, tax_income_category=tax_income_category)
@@ -61,16 +56,7 @@ class CreateCustomer(graphene.Mutation):
         )
 
 #  mutation to update customer info based on id
-class CustomerInput(graphene.InputObjectType):
-    id = graphene.Int(required=True)
-    first_name = graphene.String()
-    last_name = graphene.String()
-    email = graphene.String()
-    phone = graphene.String()
-    address = graphene.String()
-    eligible_for_subsidy = graphene.Boolean()
-    tax_household_size = graphene.Int()
-    tax_income_category = graphene.Int()
+
 
 class UpdateCustomerById(graphene.Mutation):
     class Arguments:
