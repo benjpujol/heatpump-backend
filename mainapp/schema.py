@@ -47,9 +47,7 @@ class CreateCustomer(graphene.Mutation):
     customer = graphene.Field(CustomerType)
 
     def mutate(self, info, input=None):
-        print("Here is the customer:")
         customer_instance = Customer(first_name=input.first_name,last_name=input.last_name,email=input.email,phone=input.phone,address=input.address,eligible_for_subsidy=input.eligible_for_subsidy,tax_household_size=input.tax_household_size,tax_income_category=input.tax_income_category)
-        print("Done")
         customer_instance.save()
 
         return CreateCustomer(customer=customer_instance)

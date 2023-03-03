@@ -31,4 +31,4 @@ def calculate_building_heat_loss(building_id):
 if __name__ == "__main__":
     building_id = 2
     heat_loss = calculate_building_heat_loss(building_id)
-    print(f"Heat loss for building {building_id}: {heat_loss}")
+   

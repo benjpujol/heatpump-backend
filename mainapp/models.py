@@ -21,7 +21,6 @@ class Customer(models.Model):
         # Allow to update estimate subsidy when customer is updated
         super().save(*args, **kwargs)
         estimates = Estimate.objects.filter(customer=self)
-        print("estimate change")
         for estimate in estimates:
             subsidies = calculate_subsidy(estimate)
             estimate.state_subsidy_amount = subsidies["state_subsidy_amount"]
@@ -60,7 +59,7 @@ class Building(models.Model):
     def heat_loss(self):
         # calculate the heat loss per kelvin (W/K) of the building based on its wall and roof
         heat_loss_per_kelvin = 0
-        print("Calling the heat loss function")
+        
         # iterate over each wall associated with the building
         for wall in self.wall_set.all():
             # calculate the heat loss of the wall
@@ -93,7 +92,6 @@ class Estimate(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.pk:  # if the object is being created
-            print('Creating new estimate')
             subsidies = calculate_subsidy(self)
             state_subsidy_amount = subsidies["state_subsidy_amount"]
             energy_cerficate_amount = subsidies["energy_cerficate_amount"]
@@ -110,4 +108,4 @@ if __name__ == "__main__":
     heat_loss = building.heat_loss()
     
     #print the heat loss
-    print(heat_loss)
+    

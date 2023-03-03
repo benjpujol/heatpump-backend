@@ -186,7 +186,6 @@ class Query(graphene.ObjectType):
         return Wall.objects.all()
 
     def resolve_wall_by_building_id(self, info, building_id):
-        print("Rsolving wall by building id")
         return Wall.objects.get(building_id=building_id)
     
     def resolve_wall_by_customer_id(self, info, customer_id):

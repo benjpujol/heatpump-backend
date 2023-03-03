@@ -9,15 +9,17 @@ from heatloss.schema import Query as Query3
 from heatloss.schema import Mutation as Mutation2
 from catalog.schema import Query as Query4
 from catalog.schema import Mutation as Mutation3
+from usercatalog.schema import Query as Query5
+from usercatalog.schema import Mutation as Mutation4
 
 
 
 # Define the root query and mutation for the combined schema
-class Query(Query1, Query2, Query3, Query4, ObjectType):
+class Query(Query1, Query2, Query3, Query4, Query5, ObjectType):
     pass
 
 
-class Mutation(Mutation1, Mutation2,  ObjectType):
+class Mutation(Mutation1, Mutation2, Mutation3, Mutation4,  ObjectType):
     pass
 
 
