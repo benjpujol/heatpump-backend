@@ -3,6 +3,7 @@ from subsidies.utils import calculate_subsidy
 # import module from subsidies app
 from subsidies.utils import calculate_subsidy
 
+from usercatalog.models import UserHeatPump
 
 
 # Create customer model
@@ -78,16 +79,14 @@ class Building(models.Model):
         
         return heat_loss
 
-# Create project class
+
+
+# class for one estimate
 class Estimate(models.Model):
-    id = models.AutoField(primary_key=True)
-    equipment_type = models.CharField(max_length=50, default='air_water_heat_pump')
-    project_status = models.CharField(max_length=50)
-    hot_water_production = models.BooleanField()
-    created_date = models.DateField()
+    heat_pump = models.ForeignKey(UserHeatPump, on_delete=models.CASCADE) #the estimate is associated with a heat pump in the user catalog
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    building = models.ForeignKey(Building, on_delete=models.CASCADE)
-    state_subsidy_amount = models.DecimalField(max_digits=8, decimal_places=2)
+    price = models.FloatField() 
+    state_subsidy_amount = models.DecimalField(max_digits=8, decimal_places=2) #will need to compute subsidies based on the heat pump, the building and the customer
     energy_certificate_amount = models.DecimalField(max_digits=8, decimal_places=2)
 
     def save(self, *args, **kwargs):

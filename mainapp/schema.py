@@ -1,6 +1,8 @@
 import graphene
 from graphene_django import DjangoObjectType
 from mainapp.models import Customer, Building, Estimate
+from usercatalog.models import UserHeatPump
+from graphql import GraphQLError
 
 #create basic schema for customer in graphene
 
@@ -53,8 +55,6 @@ class CreateCustomer(graphene.Mutation):
         return CreateCustomer(customer=customer_instance)
 
 #  mutation to update customer info based on id
-
-
 class UpdateCustomerById(graphene.Mutation):
     class Arguments:
         input = CustomerInput(required=True)
@@ -137,9 +137,7 @@ class CreateBuilding(graphene.Mutation):
 
         
 
-#  mutation to update customer info based on id
-
-
+# mutation to update building info based on customer id
 class UpdateBuildingByCustomerId(graphene.Mutation):
     class Arguments:
         input = BuildingInput(required=True)
@@ -185,6 +183,58 @@ class UpdateBuildingByCustomerId(graphene.Mutation):
 
 
 
+
+### Estimates
+
+class EstimateType(DjangoObjectType):
+    class Meta:
+        model = Estimate
+
+class UserHeatPumpType(DjangoObjectType):
+    class Meta:
+        model = UserHeatPump
+
+
+    
+# Mutation to create an estimate based on the selection of heat pumps in the user catalogue (UserHeatPumps)
+class CreateEstimate(graphene.Mutation):
+    class Arguments:
+        customer_id  = graphene.Int(required=True)
+        user_heat_pumps_ids = graphene.List(graphene.Int, required=True)
+
+    estimates = graphene.List(EstimateType)
+    customer = graphene.Field(CustomerType)
+
+    @staticmethod
+    def mutate(root, info, customer_id, user_heat_pumps_ids):
+        user_heat_pumps  = UserHeatPump.objects.filter(id__in=user_heat_pumps_ids)
+        
+
+        if len(user_heat_pumps) != len(user_heat_pumps_ids):
+            raise GraphQLError('Invalid User Heat Pump Ids')
+        
+        #Get the customer instance
+        customer = Customer.objects.get(pk=customer_id)
+        print(customer)
+
+        if customer:
+            # create the estimates instances
+            estimates = []
+            for user_heat_pump in user_heat_pumps:
+                try :
+                    print(user_heat_pump)
+                    print(customer)
+                    print(user_heat_pump.price)
+                    estimate_instance = Estimate(user_heat_pump=user_heat_pump, customer=customer, price=user_heat_pump.price, state_subsidy_amount=0, energy_certificate_amount=0)
+                    print(estimate_instance)
+                    estimate_instance.save()
+                    estimates.append(estimate_instance)
+                except ValueError as e :
+                    print("Error: ", e)
+                    raise GraphQLError('An estimate already exists for this user heat pump and customer')
+            
+            return CreateEstimate(estimates=estimates, customer=customer)
+        return CreateEstimate(estimates=None, customer=None)
 
 
 
@@ -243,6 +293,8 @@ class Mutation(graphene.ObjectType):
 
     create_building = CreateBuilding.Field()
     update_building_by_customer_id = UpdateBuildingByCustomerId.Field()
+
+    create_estimate = CreateEstimate.Field()
 
 
 
