@@ -91,6 +91,7 @@ class Estimate(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.pk:  # if the object is being created
+            print("creating estimate")
             subsidies = calculate_subsidy(self)
             state_subsidy_amount = subsidies["state_subsidy_amount"]
             energy_cerficate_amount = subsidies["energy_cerficate_amount"]

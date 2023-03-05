@@ -3,6 +3,7 @@ from graphene_django import DjangoObjectType
 from mainapp.models import Customer, Building, Estimate
 from usercatalog.models import UserHeatPump
 from graphql import GraphQLError
+import traceback
 
 #create basic schema for customer in graphene
 
@@ -199,7 +200,7 @@ class UserHeatPumpType(DjangoObjectType):
 # Mutation to create an estimate based on the selection of heat pumps in the user catalogue (UserHeatPumps)
 class CreateEstimate(graphene.Mutation):
     class Arguments:
-        customer_id  = graphene.Int(required=True)
+        customer_id = graphene.Int(required=True)
         user_heat_pumps_ids = graphene.List(graphene.Int, required=True)
 
     estimates = graphene.List(EstimateType)
@@ -207,36 +208,80 @@ class CreateEstimate(graphene.Mutation):
 
     @staticmethod
     def mutate(root, info, customer_id, user_heat_pumps_ids):
-        user_heat_pumps  = UserHeatPump.objects.filter(id__in=user_heat_pumps_ids)
-        
+        user_heat_pumps = UserHeatPump.objects.filter(id__in=user_heat_pumps_ids)
 
         if len(user_heat_pumps) != len(user_heat_pumps_ids):
             raise GraphQLError('Invalid User Heat Pump Ids')
-        
-        #Get the customer instance
+
+        # Get the customer instance
         customer = Customer.objects.get(pk=customer_id)
-        print(customer)
 
         if customer:
             # create the estimates instances
             estimates = []
             for user_heat_pump in user_heat_pumps:
-                try :
-                    print(user_heat_pump)
-                    print(customer)
-                    print(user_heat_pump.price)
-                    estimate_instance = Estimate(user_heat_pump=user_heat_pump, customer=customer, price=user_heat_pump.price, state_subsidy_amount=0, energy_certificate_amount=0)
-                    print(estimate_instance)
-                    estimate_instance.save()
+                # check if an estimate already exists for the given customer and user_heat_pump
+                existing_estimate = Estimate.objects.filter(
+                    heat_pump=user_heat_pump,
+                    customer=customer
+                ).first()
+
+                if existing_estimate:
+                    # skip creating a new estimate if one already exists with the same heat pump and customer
+                    continue
+
+                try:
+                    estimate_instance = Estimate.objects.create(
+                        heat_pump=user_heat_pump,
+                        customer=customer,
+                        price=1.5 * user_heat_pump.price,
+                        state_subsidy_amount=0,
+                        energy_certificate_amount=0
+                    )
                     estimates.append(estimate_instance)
-                except ValueError as e :
+                except Exception as e:
                     print("Error: ", e)
-                    raise GraphQLError('An estimate already exists for this user heat pump and customer')
-            
+                    traceback.print_exc()
+
             return CreateEstimate(estimates=estimates, customer=customer)
+
         return CreateEstimate(estimates=None, customer=None)
 
 
+# Mutation to delete estimates based on the selection of heat pumps in the user catalogue (UserHeatPumps)
+class DeleteEstimate(graphene.Mutation):
+    class Arguments:
+        customer_id = graphene.Int(required=True)
+        user_heat_pumps_ids = graphene.List(graphene.Int, required=True)
+
+    success = graphene.Boolean()
+
+    @staticmethod
+    def mutate(root, info, customer_id, user_heat_pumps_ids):
+        user_heat_pumps = UserHeatPump.objects.filter(id__in=user_heat_pumps_ids)
+
+        if len(user_heat_pumps) != len(user_heat_pumps_ids):
+            raise GraphQLError('Invalid User Heat Pump Ids')
+
+        # Get the customer instance
+        customer = Customer.objects.get(pk=customer_id)
+
+        if customer:
+            # delete the estimate instances
+            for user_heat_pump in user_heat_pumps:
+                # get the existing estimate for the given customer and user_heat_pump
+                existing_estimate = Estimate.objects.filter(
+                    heat_pump=user_heat_pump,
+                    customer=customer
+                ).first()
+
+                if existing_estimate:
+                    # delete the existing estimate
+                    existing_estimate.delete()
+
+            return DeleteEstimate(success=True)
+
+        return DeleteEstimate(success=False)
 
 #query 
 class Query(graphene.ObjectType):
@@ -273,18 +318,21 @@ class Query(graphene.ObjectType):
             return building.heat_loss
         except Building.DoesNotExist:
             return None
-
+        
+    
     estimates = graphene.List(EstimateType)
-    estimate_by_customer_id = graphene.Field(EstimateType, customer=graphene.Int(required=True))
+    estimates_by_customer_id = graphene.List(EstimateType, customer_id=graphene.Int(required=True))
 
     def resolve_estimates(self, info):
         return Estimate.objects.all()
 
-    def resolve_estimate_by_customer_id(self, info, customer):
+    def resolve_estimates_by_customer_id(self, info, customer_id):
+        customer = Customer.objects.get(pk=customer_id)
         try :
-            return Estimate.objects.get(customer=customer)
+            return Estimate.objects.filter(customer=customer)
         except Estimate.DoesNotExist:
             return None
+
 
 
 class Mutation(graphene.ObjectType):
@@ -295,6 +343,7 @@ class Mutation(graphene.ObjectType):
     update_building_by_customer_id = UpdateBuildingByCustomerId.Field()
 
     create_estimate = CreateEstimate.Field()
+    deleteEstimate = DeleteEstimate.Field()
 
 
 

@@ -14,8 +14,11 @@ def calculate_subsidy(estimate):
     # TODO - Deal with the case where household size is not in the income categories ( > 5 people)
     income_categories = IncomeCategory.objects.filter(tax_household_size=estimate.customer.tax_household_size).first()
 
+    # set the estimate equipment type to air_water_heat_pump
+    equipment_type = "air_water_heat_pump"
+
     # Get the subsidy amount for the equipment type and income category
-    subsidy_object = Subsidy.objects.filter(equipment_type=estimate.equipment_type, income_category=estimate.customer.tax_income_category).first()
+    subsidy_object = Subsidy.objects.filter(equipment_type=equipment_type, income_category=estimate.customer.tax_income_category).first()
 
     # If the subsidy amount is not None, return the subsidy amount
     if subsidy_object:
