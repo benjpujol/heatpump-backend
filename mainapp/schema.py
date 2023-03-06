@@ -4,8 +4,12 @@ from mainapp.models import Customer, Building, Estimate
 from usercatalog.models import UserHeatPump
 from graphql import GraphQLError
 import traceback
+from django.contrib.auth.models import User
 
-#create basic schema for customer in graphene
+#create basic schema for user in graphene
+class UserType(DjangoObjectType):
+    class Meta:
+        model = User
 
 #create basic schema for building in graphene
 class BuildingType(DjangoObjectType):
@@ -249,7 +253,7 @@ class CreateEstimate(graphene.Mutation):
 
 
 # Mutation to delete estimates based on the selection of heat pumps in the user catalogue (UserHeatPumps)
-class DeleteEstimates(graphene.Mutation):
+class DeleteEstimate(graphene.Mutation):
     class Arguments:
         customer_id = graphene.Int(required=True)
         user_heat_pumps_ids = graphene.List(graphene.Int, required=True)
@@ -279,17 +283,29 @@ class DeleteEstimates(graphene.Mutation):
                     # delete the existing estimate
                     existing_estimate.delete()
 
-            return DeleteEstimates(success=True)
+            return DeleteEstimate(success=True)
 
-        return DeleteEstimates(success=False)
+        return DeleteEstimate(success=False)
 
 #query 
 class Query(graphene.ObjectType):
-    customers = graphene.List(CustomerType)
+
+    # query user
+    user = graphene.Field(UserType, id=graphene.Int(required=True))
+    def resolve_user(self, info, id):
+        try:
+            return User.objects.get(id=id)
+        except User.DoesNotExist:
+            return None
+
+    # query to get the list of customers of a user
+    customers = graphene.List(CustomerType, user_id=graphene.ID(required=True))
+    def resolve_customers(self, info, user_id):
+        return Customer.objects.filter(user_id=user_id)
+
     customer_by_id = graphene.Field(CustomerType, id=graphene.Int(required=True))
 
-    def resolve_customers(self, info):
-        return Customer.objects.all()
+   
 
     def resolve_customer_by_id(self, info, id):
         try :
@@ -343,7 +359,7 @@ class Mutation(graphene.ObjectType):
     update_building_by_customer_id = UpdateBuildingByCustomerId.Field()
 
     create_estimate = CreateEstimate.Field()
-    delete_estimate = DeleteEstimates.Field()
+    delete_estimate = DeleteEstimate.Field()
 
 
 
