@@ -35,28 +35,20 @@ class Customer(models.Model):
 # Create building class
 class Building(models.Model):
     id = models.AutoField(primary_key=True)
-    year_built = models.IntegerField()
-    square_footage = models.IntegerField()
-    number_of_floors = models.IntegerField()
-    occupancy_status = models.CharField(max_length=50)
-    residence_type = models.CharField(max_length=50)
-    primary_heating_system = models.CharField(max_length=50)
-    secondary_heating_system = models.CharField(max_length=50)
-    hot_water_system = models.CharField(max_length=501)
-    temperature_setpoint = models.IntegerField(default=19)
-    annual_energy_bill = models.IntegerField()
-    annual_energy_consumption = models.IntegerField()
+    year_built = models.IntegerField(default=1950, null=True, blank=True)
+    square_footage = models.IntegerField(default=150, null=True, blank=True)
+    number_of_floors = models.IntegerField(default=2, null=True, blank=True)
+    occupancy_status = models.CharField(default="owner", max_length=50, null=True, blank=True)
+    residence_type = models.CharField(default="main", max_length=50, null=True, blank=True)
+    primary_heating_system = models.CharField(max_length=50, null=True, blank=True)
+    secondary_heating_system = models.CharField(max_length=50, null=True, blank=True)
+    hot_water_system = models.CharField(max_length=501, null=True, blank=True)
+    temperature_setpoint = models.IntegerField(default=19, null=True, blank=True)
+    annual_energy_bill = models.IntegerField(null=True, blank=True)
+    annual_energy_consumption = models.IntegerField(null=True, blank=True)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)    
 
-    def save(self, *args, **kwargs):
-        # Allow to update estimate subsidy when building is updated
-        super().save(*args, **kwargs)
-        estimates = Estimate.objects.filter(building=self)
-        for estimate in estimates:
-            subsidies = calculate_subsidy(estimate)
-            estimate.state_subsidy_amount = subsidies["state_subsidy_amount"]
-            estimate.energy_cerficate_amount = subsidies["energy_cerficate_amount"]
-            estimate.save()
+
 
     # function to calculate the heat loss of the building
     def heat_loss(self):

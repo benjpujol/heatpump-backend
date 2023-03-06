@@ -36,12 +36,12 @@ class CustomerType(DjangoObjectType):
 
 
 class CustomerInput(graphene.InputObjectType):
-    id = graphene.Int(required=True)
-    first_name = graphene.String()
-    last_name = graphene.String()
-    email = graphene.String()
-    phone = graphene.String()
-    address = graphene.String()
+    user_id = graphene.Int(required=True)
+    first_name = graphene.String(required=True)
+    last_name = graphene.String(required=True)
+    email = graphene.String(required=True)
+    phone = graphene.String(required=True)
+    address = graphene.String(required=True)
     eligible_for_subsidy = graphene.Boolean()
     tax_household_size = graphene.Int()
     tax_income_category = graphene.Int()
@@ -54,10 +54,16 @@ class CreateCustomer(graphene.Mutation):
     customer = graphene.Field(CustomerType)
 
     def mutate(self, info, input=None):
-        customer_instance = Customer(first_name=input.first_name,last_name=input.last_name,email=input.email,phone=input.phone,address=input.address,eligible_for_subsidy=input.eligible_for_subsidy,tax_household_size=input.tax_household_size,tax_income_category=input.tax_income_category)
-        customer_instance.save()
+        user_instance = User.objects.get(pk=input.user_id)
+        print(user_instance)
+        if user_instance:
+            customer_instance = Customer(first_name=input.first_name,last_name=input.last_name,email=input.email,phone=input.phone,address=input.address, user=user_instance)
+            customer_instance.save()
+            return CreateCustomer(customer=customer_instance)
+        else:
+            return CreateCustomer(customer=None)
+        
 
-        return CreateCustomer(customer=customer_instance)
 
 #  mutation to update customer info based on id
 class UpdateCustomerById(graphene.Mutation):
@@ -107,7 +113,7 @@ class BuildingInput(graphene.InputObjectType):
     temperature_setpoint = graphene.Int()
     annual_energy_bill =  graphene.Int()
     annual_energy_consumption =  graphene.Int()      
-    customer = graphene.Field(CustomerInput, required=True)
+    customer_id = graphene.Int(required=True)
 
 # mutation to create building
 class CreateBuilding(graphene.Mutation):
@@ -120,23 +126,30 @@ class CreateBuilding(graphene.Mutation):
 
     @staticmethod
     def mutate(root, info, input=None):
-        customer_instance = Customer.objects.get(pk=input.customer.id)
+        customer_instance = Customer.objects.get(pk=input.customer_id)
+        print(customer_instance)
         if customer_instance:
-            building_instance = Building(
-                year_built=input.year_built,
-                square_footage=input.square_footage,
-                number_of_floors=input.number_of_floors,
-                occupancy_status=input.occupancy_status,
-                residence_type=input.residence_type,
-                primary_heating_system=input.primary_heating_system,
-                secondary_heating_system=input.secondary_heating_system,
-                hot_water_system=input.hot_water_system,
-                temperature_setpoint=input.temperature_setpoint,
-                annual_energy_bill=input.annual_energy_bill,
-                annual_energy_consumption=input.annual_energy_consumption,
-                customer=customer_instance,
-            )
-            building_instance.save()
+            try :
+                building_instance = Building(
+                    year_built=input.year_built,
+                    square_footage=input.square_footage,
+                    number_of_floors=input.number_of_floors,
+                    occupancy_status=input.occupancy_status,
+                    residence_type=input.residence_type,
+                    primary_heating_system=input.primary_heating_system,
+                    secondary_heating_system=input.secondary_heating_system,
+                    hot_water_system=input.hot_water_system,
+                    temperature_setpoint=input.temperature_setpoint,
+                    annual_energy_bill=input.annual_energy_bill,
+                    annual_energy_consumption=input.annual_energy_consumption,
+                    customer=customer_instance,
+                )
+                print(building_instance)
+                building_instance.save()
+            except Exception as e:
+                print(e)
+                traceback.print_exc()
+          
             return CreateBuilding(building=building_instance)
         return CreateBuilding(building=None)
 
@@ -151,7 +164,9 @@ class UpdateBuildingByCustomerId(graphene.Mutation):
 
     @staticmethod
     def mutate(root, info, input=None):
-        customer_instance = Customer.objects.get(pk=input.customer.id)
+        print(input)
+        customer_instance = Customer.objects.get(pk=input.customer_id)
+        
         if customer_instance :
             building_instance = Building.objects.get(customer=customer_instance)
             if building_instance:
@@ -308,6 +323,7 @@ class Query(graphene.ObjectType):
    
 
     def resolve_customer_by_id(self, info, id):
+        print(id)
         try :
             return Customer.objects.get(id=id)
         except Customer.DoesNotExist:
