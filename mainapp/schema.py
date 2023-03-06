@@ -249,7 +249,7 @@ class CreateEstimate(graphene.Mutation):
 
 
 # Mutation to delete estimates based on the selection of heat pumps in the user catalogue (UserHeatPumps)
-class DeleteEstimate(graphene.Mutation):
+class DeleteEstimates(graphene.Mutation):
     class Arguments:
         customer_id = graphene.Int(required=True)
         user_heat_pumps_ids = graphene.List(graphene.Int, required=True)
@@ -279,9 +279,9 @@ class DeleteEstimate(graphene.Mutation):
                     # delete the existing estimate
                     existing_estimate.delete()
 
-            return DeleteEstimate(success=True)
+            return DeleteEstimates(success=True)
 
-        return DeleteEstimate(success=False)
+        return DeleteEstimates(success=False)
 
 #query 
 class Query(graphene.ObjectType):
@@ -343,7 +343,7 @@ class Mutation(graphene.ObjectType):
     update_building_by_customer_id = UpdateBuildingByCustomerId.Field()
 
     create_estimate = CreateEstimate.Field()
-    deleteEstimate = DeleteEstimate.Field()
+    delete_estimate = DeleteEstimates.Field()
 
 
 
