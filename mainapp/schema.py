@@ -94,7 +94,10 @@ class UpdateCustomerById(graphene.Mutation):
 
     @staticmethod
     def mutate(root, info, input=None):
+        print(input.id)
         customer_instance = Customer.objects.get(pk=input.id)
+        print(customer_instance)
+
         if customer_instance:
             if 'first_name' in input:
                 customer_instance.first_name = input.first_name
@@ -113,6 +116,7 @@ class UpdateCustomerById(graphene.Mutation):
             if 'tax_income_category' in input:
                 customer_instance.tax_income_category = input.tax_income_category
     
+        
             customer_instance.save()
             return UpdateCustomerById(customer=customer_instance)
         return UpdateCustomerById(customer=None)

@@ -28,9 +28,10 @@ def calculate_subsidy(estimate):
 
     # If the subsidy amount is not None, return the subsidy amount
     if subsidy_object:
-        return {'state_subsidy_amount' : subsidy_object.state_subsidy_amount, 'energy_cerficate_amount' : subsidy_object.energy_certificate_amount}
+        return {'state_subsidy_amount' : subsidy_object.state_subsidy_amount, 'energy_certificate_amount' : subsidy_object.energy_certificate_amount}
     else:
-        return {'state_subsidy_amount' : 0, 'energy_cerficate_amount' : 0}
+        return {'state_subsidy_amount' : 0, 'energy_certificate_amount' : 0}
+    
     
 
 def calculate_default_subsidy(customer, equipment_type="air_water_heat_pump"):
