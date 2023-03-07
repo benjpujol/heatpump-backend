@@ -20,7 +20,7 @@ def calculate_subsidy(estimate):
 
     # If the customer is not eligible for subsidy, return 0
     if estimate.customer.eligible_for_subsidy == False:
-        return {'state_subsidy_amount' : 0, 'energy_cerficate_amount' : 0}
+        return {'state_subsidy_amount' : 0, 'energy_certificate_amount' : 0}
     
 
     # Get the subsidy amount for the equipment type and income category

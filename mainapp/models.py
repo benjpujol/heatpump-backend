@@ -93,9 +93,9 @@ class Estimate(models.Model):
             print("creating estimate")
             subsidies = calculate_subsidy(self)
             state_subsidy_amount = subsidies["state_subsidy_amount"]
-            energy_cerficate_amount = subsidies["energy_cerficate_amount"]
+            energy_certificate_amount = subsidies["energy_certificate_amount"]
             self.state_subsidy_amount = state_subsidy_amount
-            self.energy_certificate_amount = energy_cerficate_amount
+            self.energy_certificate_amount = energy_certificate_amount
         super().save(*args, **kwargs)
     
 
