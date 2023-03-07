@@ -117,7 +117,12 @@ class UpdateCustomerById(graphene.Mutation):
                 customer_instance.tax_income_category = input.tax_income_category
     
         
-            customer_instance.save()
+            try :
+                customer_instance.save()
+            except Exception as e:
+                print(e)
+                traceback.print_exc()
+                return UpdateCustomerById(customer=None)
             return UpdateCustomerById(customer=customer_instance)
         return UpdateCustomerById(customer=None)
 
