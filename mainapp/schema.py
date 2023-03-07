@@ -31,11 +31,21 @@ class EstimateType(DjangoObjectType):
 ## Customer
 
 class CustomerType(DjangoObjectType):
+    default_state_subsidy = graphene.Float()
+    default_energy_certificate = graphene.Float()
+
     class Meta:
         model = Customer
 
+    def resolve_state_subsidy_amount(parent, info):
+        print("parent.get_default_subsidy()", parent.get_default_subsidy())
+        return parent.get_default_subsidy().get('state_subsidy_amount')
 
-class CustomerInput(graphene.InputObjectType):
+    def resolve_energy_certificate_amount(parent, info):
+        return parent.get_default_subsidy().get('energy_certificate_amount')
+
+
+class CustomerCreateInput(graphene.InputObjectType):
     user_id = graphene.Int(required=True)
     first_name = graphene.String(required=True)
     last_name = graphene.String(required=True)
@@ -49,7 +59,7 @@ class CustomerInput(graphene.InputObjectType):
 # mutation to create customer
 class CreateCustomer(graphene.Mutation):    
     class Arguments:
-        input = CustomerInput(required=True)
+        input = CustomerCreateInput(required=True)
 
     customer = graphene.Field(CustomerType)
 
@@ -64,11 +74,21 @@ class CreateCustomer(graphene.Mutation):
             return CreateCustomer(customer=None)
         
 
+class CustomerUpdateInput(graphene.InputObjectType):
+    id = graphene.Int(required=True)
+    first_name = graphene.String()
+    last_name = graphene.String()
+    email = graphene.String()
+    phone = graphene.String()
+    address = graphene.String()
+    eligible_for_subsidy = graphene.Boolean()
+    tax_household_size = graphene.Int()
+    tax_income_category = graphene.Int()
 
 #  mutation to update customer info based on id
 class UpdateCustomerById(graphene.Mutation):
     class Arguments:
-        input = CustomerInput(required=True)
+        input = CustomerUpdateInput(required=True)
 
     customer = graphene.Field(CustomerType)
 
@@ -320,12 +340,12 @@ class Query(graphene.ObjectType):
 
     customer_by_id = graphene.Field(CustomerType, id=graphene.Int(required=True))
 
-   
-
     def resolve_customer_by_id(self, info, id):
-        print(id)
         try :
-            return Customer.objects.get(id=id)
+            customer = Customer.objects.get(id=id)
+            customer.default_state_subsidy = customer.get_default_subsidy().get('state_subsidy_amount')
+            customer.default_energy_certificate = customer.get_default_subsidy().get('energy_certificate_amount')
+            return customer
         except Customer.DoesNotExist:
             return None
 

@@ -1,7 +1,7 @@
 from django.db import models
 from subsidies.utils import calculate_subsidy
 # import module from subsidies app
-from subsidies.utils import calculate_subsidy
+from subsidies.utils import calculate_subsidy, calculate_default_subsidy
 from django.contrib.auth.models import User
 
 from usercatalog.models import UserHeatPump
@@ -20,6 +20,11 @@ class Customer(models.Model):
     tax_income_category = models.IntegerField(default=500000)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
+
+    def get_default_subsidy(self, equipment_type="air_water_heat_pump"):
+        return calculate_default_subsidy(self, equipment_type)
+   
+
     def save(self, *args, **kwargs):
         # Allow to update estimate subsidy when customer is updated
         super().save(*args, **kwargs)
@@ -27,7 +32,7 @@ class Customer(models.Model):
         for estimate in estimates:
             subsidies = calculate_subsidy(estimate)
             estimate.state_subsidy_amount = subsidies["state_subsidy_amount"]
-            estimate.energy_certificate_amount = subsidies["energy_cerficate_amount"]
+            estimate.energy_certificate_amount = subsidies["energy_certificate_amount"]
             estimate.save()
 
     
