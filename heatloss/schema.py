@@ -181,6 +181,7 @@ class Query(graphene.ObjectType):
     floor_by_customer_id = graphene.Field(FloorType, customer_id=graphene.ID())
 
     windows = graphene.List(WindowType)
+    windows_by_customer_id = graphene.List(WindowType, customer_id=graphene.Int())
 
     def resolve_walls(self, info, **kwargs):
         return Wall.objects.all()
@@ -205,7 +206,6 @@ class Query(graphene.ObjectType):
         building_id = Building.objects.get(customer_id=customer_id).id
         return Roof.objects.get(building_id=building_id)
 
-    
 
 
     def resolve_floors(self, info, **kwargs):
@@ -222,6 +222,10 @@ class Query(graphene.ObjectType):
     def resolve_windows(self, info, **kwargs):
         return Window.objects.all()
     
+    def resolve_windows_by_customer_id(self, info, customer_id):
+        # get building id from customer id
+        building_id = Building.objects.get(customer_id=customer_id).id
+        return Window.objects.filter(building_id=building_id)
 
 
 

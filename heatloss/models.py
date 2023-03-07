@@ -73,12 +73,14 @@ class Window(models.Model):
     # define the window dimensions
     window_width = models.IntegerField()
     window_height = models.IntegerField()
-    # define the window insulation type (single pane, double pane, triple pane)
-    window_type = models.CharField(max_length=50)
+    # define the window insulation type (single, double, triple)
+    window_insulation_type = models.CharField(max_length=50)
     # define the window size type (small, medium, large)
     window_size_type = models.CharField(max_length=50)
     # define the window insulation
     window_insulation_u_value = models.FloatField(max_length=50)
+    #define the window orientation
+    window_orientation = models.CharField(max_length=50, null=True, blank=True)
     # foreign key to building
     building = models.ForeignKey(Building, on_delete=models.CASCADE)
 
