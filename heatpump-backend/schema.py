@@ -11,15 +11,17 @@ from catalog.schema import Query as Query4
 from catalog.schema import Mutation as Mutation3
 from usercatalog.schema import Query as Query5
 from usercatalog.schema import Mutation as Mutation4
+from users.schema import Query as Query6
+from users.schema import Mutation as Mutation5
 
 
 
 # Define the root query and mutation for the combined schema
-class Query(Query1, Query2, Query3, Query4, Query5, ObjectType):
+class Query(Query1, Query2, Query3, Query4, Query5, Query6, ObjectType):
     pass
 
 
-class Mutation(Mutation1, Mutation2, Mutation3, Mutation4,  ObjectType):
+class Mutation(Mutation1, Mutation2, Mutation3, Mutation4, Mutation5,  ObjectType):
     pass
 
 

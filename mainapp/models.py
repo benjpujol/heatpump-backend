@@ -2,7 +2,7 @@ from django.db import models
 from subsidies.utils import calculate_subsidy
 # import module from subsidies app
 from subsidies.utils import calculate_subsidy, calculate_default_subsidy
-from django.contrib.auth.models import User
+from users.models  import CustomUser
 
 from usercatalog.models import UserHeatPump
 
@@ -18,7 +18,7 @@ class Customer(models.Model):
     eligible_for_subsidy = models.BooleanField(default=True)
     tax_household_size =  models.IntegerField(default=2)  
     tax_income_category = models.IntegerField(default=500000)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
 
 
     def get_default_subsidy(self, equipment_type="air_water_heat_pump"):

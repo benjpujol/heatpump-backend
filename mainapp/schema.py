@@ -4,12 +4,12 @@ from mainapp.models import Customer, Building, Estimate
 from usercatalog.models import UserHeatPump
 from graphql import GraphQLError
 import traceback
-from django.contrib.auth.models import User
+from users.models import CustomUser
 
 #create basic schema for user in graphene
 class UserType(DjangoObjectType):
     class Meta:
-        model = User
+        model = CustomUser
 
 #create basic schema for building in graphene
 class BuildingType(DjangoObjectType):
@@ -342,13 +342,6 @@ class DeleteEstimate(graphene.Mutation):
 #query 
 class Query(graphene.ObjectType):
 
-    # query user
-    user = graphene.Field(UserType, id=graphene.Int(required=True))
-    def resolve_user(self, info, id):
-        try:
-            return User.objects.get(id=id)
-        except User.DoesNotExist:
-            return None
 
     # query to get the list of customers of a user
     customers = graphene.List(CustomerType, user_id=graphene.ID(required=True))

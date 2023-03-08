@@ -2,7 +2,7 @@ from graphene_django import DjangoObjectType
 import graphene
 from .models import UserHeatPump
 from catalog.models import HeatPump
-from django.contrib.auth.models import User
+from users.models import CustomUser as User
 from graphql import GraphQLError
 
 import logging
