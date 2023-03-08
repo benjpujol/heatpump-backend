@@ -60,6 +60,7 @@ INSTALLED_APPS = [
      'graphql_jwt',
      'corsheaders',
      'users',
+     'file_storage',
     'mainapp.apps.MainappConfig',
     'subsidies.apps.SubsidiesConfig',
     'heatloss.apps.HeatlossConfig',
@@ -179,14 +180,18 @@ MEDIA_URL = '/media/'
 ## GOOGLE CLOUD STORAGE SETTINGS
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_BUCKET_NAME = 'vesta-users-files'
-MEDIA_URL = "URL.to.GCS"
+
 
 
 if os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
     # Development environment
-    GS_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+    import google.auth
+    credentials, project = google.auth.default()
+    GS_CREDENTIALS = credentials
+    print(GS_CREDENTIALS)
 else:
     # Production environment
+    
     from google.oauth2 import service_account
     GS_CREDENTIALS = service_account.Credentials.from_service_account_info(
         json.loads(os.getenv('GOOGLE_CREDENTIALS'))
