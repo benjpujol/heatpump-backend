@@ -6,10 +6,6 @@ from mainapp.models import Building
 
 
 
-class WindowType(DjangoObjectType):
-    class Meta:
-        model = Window
-
 
 ## Wall
 # Wall object type (graphene)
@@ -165,6 +161,99 @@ class UpdateFloorByBuildingId(graphene.Mutation):
         return UpdateFloorByBuildingId(floor=None)
 
     
+## window
+
+class WindowType(DjangoObjectType):
+    success = graphene.Boolean()
+    class Meta:
+        model = Window
+
+
+class DeleteWindowById(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    Output = WindowType
+
+    @staticmethod
+    def mutate(root, info, id):
+        try:
+            window = Window.objects.get(id=id)
+            window.delete()
+            return WindowType(id=id, success=True)
+        except Window.DoesNotExist:
+            return WindowType(id=None, success=False)
+
+class WindowInput(graphene.InputObjectType):
+    window_area = graphene.Int()
+    window_width = graphene.Int()
+    window_height = graphene.Int()
+    window_insulation_type = graphene.String()
+    window_size_type = graphene.String()
+    window_insulation_u_value = graphene.Float()
+    window_orientation = graphene.String()
+    customer_id = graphene.Int(required=True)
+   
+
+class CreateWindow(graphene.Mutation):
+    class Arguments:
+        input = WindowInput(required=True)
+
+    window = graphene.Field(WindowType)
+
+    @staticmethod
+    def mutate(root, info, input=None):
+        print(input)
+        building_id = Building.objects.get(customer_id=input.customer_id).id
+        try :
+            window_instance = Window(window_area=input.window_area, window_width=input.window_width, window_height= input.window_height, window_insulation_type=input.window_insulation_type, window_size_type=input.window_size_type, window_insulation_u_value=input.window_insulation_u_value, window_orientation=input.window_orientation, building_id=building_id)
+            window_instance.save()
+        except Exception as e:
+            print(e)
+    
+        return CreateWindow(window=window_instance)
+    
+
+class UpdateWindowInput(graphene.InputObjectType):
+    window_area = graphene.Int()
+    window_width = graphene.Int()
+    window_height = graphene.Int()
+    window_insulation_type = graphene.String()
+    window_size_type = graphene.String()
+    window_insulation_u_value = graphene.Float()
+    window_orientation = graphene.String()
+    customer_id = graphene.Int(required=True)
+    id = graphene.Int(required=True)
+
+class UpdateWindow(graphene.Mutation):
+    class Arguments:
+        input = UpdateWindowInput(required=True)
+
+        
+
+    window = graphene.Field(WindowType)
+
+    @staticmethod
+    def mutate(root, info, input=None):
+        print(input)
+        window_instance = Window.objects.get(id=input.id)
+        print(window_instance)
+        if "window_area" in input:
+            window_instance.window_area = input.window_area
+        if "window_width" in input:
+            window_instance.window_width = input.window_width
+        if "window_height" in input:
+            window_instance.window_height = input.window_height
+        if "window_insulation_type" in input:
+            window_instance.window_insulation_type = input.window_insulation_type
+        if "window_size_type" in input:
+            window_instance.window_size_type = input.window_size_type
+        if "window_insulation_u_value" in input:
+            window_instance.window_insulation_u_value = input.window_insulation_u_value
+        if "window_orientation" in input:
+            window_instance.window_orientation = input.window_orientation
+        window_instance.save()
+        return UpdateWindow(window=window_instance)
 
 
 class Query(graphene.ObjectType):
@@ -238,6 +327,11 @@ class Mutation(graphene.ObjectType):
 
     create_floor = CreateFloor.Field()
     update_floor_by_building_id = UpdateFloorByBuildingId.Field()
+
+
+    create_window = CreateWindow.Field()
+    delete_window_by_id = DeleteWindowById.Field()
+    update_window = UpdateWindow.Field()
 
 
 
