@@ -178,7 +178,6 @@ MEDIA_URL = '/media/'
 ## GOOGLE CLOUD STORAGE SETTINGS
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_BUCKET_NAME = 'vesta-users-files'
-
 MEDIA_URL = "URL.to.GCS"
 GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
     "path/to/credentials.json"
