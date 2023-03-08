@@ -17,9 +17,14 @@ class BuildingType(DjangoObjectType):
         model = Building
     
     heat_loss = graphene.Float()
+    heat_power = graphene.Float()
 
     def resolve_heat_loss(self, info):
         return self.heat_loss()
+    
+    def resolve_heat_power(self, info):
+        return self.heat_power()
+    
 
 #create basic schema for estimate in graphene
 class EstimateType(DjangoObjectType):
@@ -331,6 +336,9 @@ class DeleteEstimate(graphene.Mutation):
 
         return DeleteEstimate(success=False)
 
+
+
+
 #query 
 class Query(graphene.ObjectType):
 
@@ -361,8 +369,8 @@ class Query(graphene.ObjectType):
     buildings = graphene.List(BuildingType)
     building_by_customer_id = graphene.Field(BuildingType, customer=graphene.Int(required=True))
 
-    # query to return the heat loss of a building
-    building_heat_loss = graphene.Float(id=graphene.Int(required=True))
+
+    
 
     def resolve_buildings(self, info):
         return Building.objects.all()
@@ -373,12 +381,7 @@ class Query(graphene.ObjectType):
         except Building.DoesNotExist:
             return None
 
-    def resolve_building_heat_loss(self, info, id):
-        try :
-            building = Building.objects.get(id=id)
-            return building.heat_loss
-        except Building.DoesNotExist:
-            return None
+
         
     
     estimates = graphene.List(EstimateType)

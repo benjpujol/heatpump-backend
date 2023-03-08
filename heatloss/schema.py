@@ -1,7 +1,14 @@
 import graphene
 from graphene_django import DjangoObjectType
-from heatloss.models import Wall, Roof, Floor, Window
+from heatloss.models import Wall, Roof, Floor, Window, Radiator
 from mainapp.models import Building
+
+
+# OrderBY
+class OrderByInput(graphene.InputObjectType):
+    field = graphene.String()
+    direction = graphene.String(default_value="ASC")
+
 
 
 
@@ -169,6 +176,9 @@ class WindowType(DjangoObjectType):
         model = Window
 
 
+
+
+
 class DeleteWindowById(graphene.Mutation):
     class Arguments:
         id = graphene.Int(required=True)
@@ -256,6 +266,94 @@ class UpdateWindow(graphene.Mutation):
         return UpdateWindow(window=window_instance)
 
 
+
+## Radiators
+
+class RadiatorType(DjangoObjectType):
+    success = graphene.Boolean()
+    class Meta:
+        model = Radiator
+
+
+
+
+
+class DeleteRadiatorById(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    Output = RadiatorType
+
+    @staticmethod
+    def mutate(root, info, id):
+        try:
+            radiator = Radiator.objects.get(id=id)
+            radiator.delete()
+            return RadiatorType(id=id, success=True)
+        except Radiator.DoesNotExist:
+            return RadiatorType(id=None, success=False)
+
+class RadiatorInput(graphene.InputObjectType):
+    type = graphene.String()
+    width = graphene.Float(default_value=1.5)
+    height = graphene.Float(default_value=1)
+    depth = graphene.Float(default_value=0.5)
+    customer_id = graphene.Int(required=True)
+   
+
+class CreateRadiator(graphene.Mutation):
+    class Arguments:
+        input = RadiatorInput(required=True)
+
+    radiator = graphene.Field(RadiatorType)
+
+    @staticmethod
+    def mutate(root, info, input=None):
+        print(input)
+        building_id = Building.objects.get(customer_id=input.customer_id).id
+        try :
+            radiator_instance = Radiator(type = input.type, width=input.width, height= input.height, depth = input.depth, building_id=building_id)
+            radiator_instance.save()
+        except Exception as e:
+            print(e)
+    
+        return CreateRadiator(radiator=radiator_instance)
+    
+
+class UpdateRadiatorInput(graphene.InputObjectType):
+    type = graphene.String()
+    width = graphene.Float(default_value=1.5)
+    height = graphene.Float(default_value=1)
+    depth = graphene.Float(default_value=0.5)
+    customer_id = graphene.Int(required=True)
+    id = graphene.Int(required=True)
+
+class UpdateRadiator(graphene.Mutation):
+    class Arguments:
+        input = UpdateRadiatorInput(required=True)
+
+    radiator = graphene.Field(RadiatorType)
+
+    @staticmethod
+    def mutate(root, info, input=None):
+        print(input)
+        radiator_instance = Radiator.objects.get(id=input.id)
+        print(radiator_instance)
+        if input.type:
+            radiator_instance.type = input.type
+        if input.width:
+            radiator_instance.width  = input.width
+        if input.height:
+            radiator_instance.height = input.height
+        if input.depth:
+            radiator_instance.depth = input.depth
+        try :
+            radiator_instance.save()
+        except Exception as e:
+            print(e)
+        return UpdateRadiator(radiator=radiator_instance)
+
+
 class Query(graphene.ObjectType):
     walls = graphene.List(WallType)
     wall_by_building_id = graphene.Field(WallType, building_id=graphene.ID())
@@ -270,7 +368,10 @@ class Query(graphene.ObjectType):
     floor_by_customer_id = graphene.Field(FloorType, customer_id=graphene.ID())
 
     windows = graphene.List(WindowType)
-    windows_by_customer_id = graphene.List(WindowType, customer_id=graphene.Int())
+    windows_by_customer_id = graphene.List(WindowType, customer_id=graphene.Int(), order_by=graphene.List(OrderByInput, default_value=[{"field": "id", "direction": "ASC"}]))
+
+    radiators = graphene.List(RadiatorType)
+    radiators_by_customer_id = graphene.List(RadiatorType, customer_id=graphene.Int(), order_by=graphene.List(OrderByInput, default_value=[{"field": "id", "direction": "ASC"}]))
 
     def resolve_walls(self, info, **kwargs):
         return Wall.objects.all()
@@ -311,10 +412,33 @@ class Query(graphene.ObjectType):
     def resolve_windows(self, info, **kwargs):
         return Window.objects.all()
     
-    def resolve_windows_by_customer_id(self, info, customer_id):
-        # get building id from customer id
+    def resolve_windows_by_customer_id(self, info, customer_id, order_by=None):
         building_id = Building.objects.get(customer_id=customer_id).id
-        return Window.objects.filter(building_id=building_id)
+        queryset = Window.objects.filter(building_id=building_id)
+        if order_by:
+            for ordering in order_by:
+                if ordering.direction.lower() == "asc":
+                    queryset = queryset.order_by(ordering.field)
+                else:
+                    queryset = queryset.order_by("-" + ordering.field)
+        return queryset
+    
+    def resolve_radiators(self, info, **kwargs):
+        return Radiator.objects.all()
+    
+    def resolve_radiators_by_customer_id(self, info, customer_id, order_by=None):
+        building_id = Building.objects.get(customer_id=customer_id).id
+        queryset = Radiator.objects.filter(building_id=building_id)
+        if order_by:
+            for ordering in order_by:
+                if ordering.direction.lower() == "asc":
+                    queryset = queryset.order_by(ordering.field)
+                else:
+                    queryset = queryset.order_by("-" + ordering.field)
+        return queryset
+         
+
+            
 
 
 
@@ -332,6 +456,10 @@ class Mutation(graphene.ObjectType):
     create_window = CreateWindow.Field()
     delete_window_by_id = DeleteWindowById.Field()
     update_window = UpdateWindow.Field()
+
+    create_radiator = CreateRadiator.Field()
+    delete_radiator_by_id = DeleteRadiatorById.Field()
+    update_radiator = UpdateRadiator.Field()
 
 
 

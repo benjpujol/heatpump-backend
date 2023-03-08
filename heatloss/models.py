@@ -1,4 +1,5 @@
 from django.db import models
+import math
 
 # Create your models here.
 # import the building class from mainapp
@@ -84,5 +85,30 @@ class Window(models.Model):
     # foreign key to building
     building = models.ForeignKey(Building, on_delete=models.CASCADE)
 
+
+
+# create the radiator class
+class Radiator(models.Model):
+    # define the radiator type :  cast-iron, aluminium, 
+    type = models.CharField(max_length=50)
+    # define the radiator height
+    height = models.FloatField(default=1.5)
+    # define the radiator width
+    width = models.FloatField(default=1.5)
+    # define the radiator depth
+    depth = models.FloatField(default=0.5)    
+    # foreign key to building
+    building = models.ForeignKey(Building, on_delete=models.CASCADE)
+
+    def heat_power(self, inlet_temperature=55, outlet_temperature=45,  surrounding_temperature=20):
+
+        n_coeff_values = {"cast-iron": 1.33, "aluminium": 1.4, "steel": 1.4, "steel-1": 1.4, "steel-2":1.4} #constant describing the type of radiator
+        n_coeff = n_coeff_values[self.type]
+        p_50 = 1200               #heat emission from radiator with temperature difference 50 oC (W)
+
+        # calculate the heat power for the radiator
+    
+        heat_power = p_50 * ((inlet_temperature - outlet_temperature) / math.log( (inlet_temperature - surrounding_temperature) / (outlet_temperature - surrounding_temperature))/ 49.32)**(n_coeff)
+        return heat_power
 
 

@@ -77,6 +77,16 @@ class Building(models.Model):
         heat_loss = heat_loss_per_kelvin * (self.temperature_setpoint + 7)
         
         return heat_loss
+    
+    def heat_power(self, inlet_temperature=55, outlet_temperature=45):
+        # iterate over each radiator associated with the building
+        heat_power = 0
+        for radiator in self.radiator_set.all():
+            # calculate the heat power of the radiator
+            heat_power += radiator.heat_power(inlet_temperature=inlet_temperature, outlet_temperature=outlet_temperature, surrounding_temperature=self.temperature_setpoint)
+        return heat_power
+    
+
 
 
 
