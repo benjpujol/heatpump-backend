@@ -15,6 +15,7 @@ import dj_database_url
 import os
 from google.oauth2 import service_account
 from datetime import timedelta
+import json
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -179,7 +180,16 @@ MEDIA_URL = '/media/'
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_BUCKET_NAME = 'vesta-users-files'
 MEDIA_URL = "URL.to.GCS"
-GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
-    "path/to/credentials.json"
-)
+
+
+if os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
+    # Development environment
+    GS_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+else:
+    # Production environment
+    from google.oauth2 import service_account
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_info(
+        json.loads(os.getenv('GOOGLE_CREDENTIALS'))
+    )
+
 GS_EXPIRATION = timedelta(minutes=5)
