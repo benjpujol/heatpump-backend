@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from .managers import CustomUserManager
 
 
+
 class CustomUser(AbstractUser):
     username = None
     email = models.EmailField(_("email address"), unique=True)
@@ -21,7 +22,7 @@ class CustomUser(AbstractUser):
     
 class Settings(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    logo = models.ImageField(upload_to='logos', blank=True)
+    logo = models.OneToOneField('file_storage.logo', on_delete=models.CASCADE, blank=True, null=True)
     company_name = models.CharField(max_length=100, blank=True)
     company_address = models.CharField(max_length=100, blank=True)
     company_city = models.CharField(max_length=100, blank=True)
