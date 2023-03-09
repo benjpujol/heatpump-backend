@@ -23,5 +23,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
       path('graphql/', csrf_exempt(GraphQLView.as_view(graphiql=True))),
        path('upload_file/', views.upload_file, name='upload_file'),
+       path('upload_logo/', views.upload_logo, name='upload_logo'),
       
 ]
