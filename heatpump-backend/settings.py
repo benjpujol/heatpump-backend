@@ -184,7 +184,7 @@ GS_BUCKET_NAME = 'vesta-users-files'
 
 
 if os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
-    print(os.getenv.GOOGLE_APPLICATION_CREDENTIALS)
+    
     # Development environment
     import google.auth
     try :
