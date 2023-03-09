@@ -183,7 +183,7 @@ GS_BUCKET_NAME = 'vesta-users-files'
 
 
 
-if os.getenv('GOOGLE_APPLICATION_CREDENTIALS') and os.getenv('ENVIRONMENT') == 'development':
+if os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
     # Development environment
     import google.auth
     credentials, project = google.auth.default()
