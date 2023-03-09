@@ -207,4 +207,4 @@ GS_BUCKET_NAME = 'vesta-users-files'
 # # Authenticate using the default Google credentials
 # GS_CREDENTIALS, _ = default(credentials.Credentials.from_authorized_user_info(info=google_credentials))
 
-# GS_EXPIRATION = timedelta(minutes=5)
+GS_EXPIRATION = timedelta(minutes=5)
