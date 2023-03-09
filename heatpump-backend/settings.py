@@ -183,18 +183,30 @@ GS_BUCKET_NAME = 'vesta-users-files'
 
 
 
-if os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
-    print(os.getenv('GOOGLE_APPLICATION_CREDENTIALS'))
+# if os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
+#     print(os.getenv('GOOGLE_APPLICATION_CREDENTIALS'))
     
-    # Development environment
-    import google.auth
-    try :
-        credentials, project = google.auth.default()
-    except google.auth.exceptions.DefaultCredentialsError:
-        credentials = service_account.Credentials.from_service_account_file(
-    'google-credentials.json')
-    GS_CREDENTIALS = credentials
-    print(GS_CREDENTIALS)
+#     # Development environment
+#     import google.auth
+#     try :
+#         credentials, project = google.auth.default()
+#     except google.auth.exceptions.DefaultCredentialsError:
+#         credentials = service_account.Credentials.from_service_account_file(
+#     'google-credentials.json')
+#     GS_CREDENTIALS = credentials
+#     print(GS_CREDENTIALS)
+
+from google.auth import credentials, default
+# Load the Google credentials from the google-credentials.json file
+with open(os.path.join(BASE_DIR, 'google-credentials.json')) as f:
+    google_credentials = json.load(f)
+
+# Set the GOOGLE_APPLICATION_CREDENTIALS environment variable
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.path.join(BASE_DIR, 'google-credentials.json')
+
+# Authenticate using the default Google credentials
+GS_CREDENTIALS, _ = default(credentials.Credentials.from_authorized_user_info(info=google_credentials))
+He
 
 
 GS_EXPIRATION = timedelta(minutes=5)
