@@ -189,12 +189,6 @@ if os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
     credentials, project = google.auth.default()
     GS_CREDENTIALS = credentials
     print(GS_CREDENTIALS)
-else:
-    # Production environment
-    
-    from google.oauth2 import service_account
-    GS_CREDENTIALS = service_account.Credentials.from_service_account_info(
-        json.loads(os.getenv('GOOGLE_CREDENTIALS'))
-    )
+
 
 GS_EXPIRATION = timedelta(minutes=5)
