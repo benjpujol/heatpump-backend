@@ -196,15 +196,15 @@ GS_BUCKET_NAME = 'vesta-users-files'
 #     GS_CREDENTIALS = credentials
 #     print(GS_CREDENTIALS)
 
-from google.auth import credentials, default
-# Load the Google credentials from the google-credentials.json file
-with open(os.path.join('google-credentials.json')) as f:
-    google_credentials = json.load(f)
+# from google.auth import credentials, default
+# # Load the Google credentials from the google-credentials.json file
+# with open(os.path.join('google-credentials.json')) as f:
+#     google_credentials = json.load(f)
 
-# Set the GOOGLE_APPLICATION_CREDENTIALS environment variable
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.path.join( 'google-credentials.json')
+# # Set the GOOGLE_APPLICATION_CREDENTIALS environment variable
+# os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.path.join( 'google-credentials.json')
 
-# Authenticate using the default Google credentials
-GS_CREDENTIALS, _ = default(credentials.Credentials.from_authorized_user_info(info=google_credentials))
+# # Authenticate using the default Google credentials
+# GS_CREDENTIALS, _ = default(credentials.Credentials.from_authorized_user_info(info=google_credentials))
 
 GS_EXPIRATION = timedelta(minutes=5)
