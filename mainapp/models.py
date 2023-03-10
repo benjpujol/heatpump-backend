@@ -15,6 +15,8 @@ class Customer(models.Model):
     email = models.EmailField(max_length=50)
     phone = models.CharField(max_length=50)
     address = models.CharField(max_length=50)
+    latitude = models.FloatField(default=0)
+    longitude = models.FloatField(default=0)
     eligible_for_subsidy = models.BooleanField(default=True)
     tax_household_size =  models.IntegerField(default=2)  
     tax_income_category = models.IntegerField(default=500000)

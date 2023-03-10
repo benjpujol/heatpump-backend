@@ -183,16 +183,14 @@ GS_BUCKET_NAME = 'vesta-users-files'
 
 
 
-if os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
-    
-    # Development environment
-    import google.auth
-    try :
-        credentials, project = google.auth.default()
-    except google.auth.exceptions.DefaultCredentialsError:
-        credentials = service_account.Credentials.from_service_account_file(
-    'google-credentials.json')
-    GS_CREDENTIALS = credentials
+# Development environment
+import google.auth
+try :
+    credentials, project = google.auth.default()
+except google.auth.exceptions.DefaultCredentialsError:
+    credentials = service_account.Credentials.from_service_account_file(
+'google-credentials.json')
+GS_CREDENTIALS = credentials
     
 
 # from google.auth import credentials, default

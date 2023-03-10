@@ -57,6 +57,8 @@ class CustomerCreateInput(graphene.InputObjectType):
     email = graphene.String(required=True)
     phone = graphene.String(required=True)
     address = graphene.String(required=True)
+    latitude = graphene.Float()
+    longitude = graphene.Float()
     eligible_for_subsidy = graphene.Boolean()
     tax_household_size = graphene.Int()
     tax_income_category = graphene.Int()
@@ -69,10 +71,10 @@ class CreateCustomer(graphene.Mutation):
     customer = graphene.Field(CustomerType)
 
     def mutate(self, info, input=None):
-        user_instance = User.objects.get(pk=input.user_id)
+        user_instance = CustomUser.objects.get(pk=input.user_id)
         print(user_instance)
         if user_instance:
-            customer_instance = Customer(first_name=input.first_name,last_name=input.last_name,email=input.email,phone=input.phone,address=input.address, user=user_instance)
+            customer_instance = Customer(first_name=input.first_name,last_name=input.last_name,email=input.email,phone=input.phone,address=input.address,  user=user_instance)
             customer_instance.save()
             return CreateCustomer(customer=customer_instance)
         else:
@@ -86,6 +88,8 @@ class CustomerUpdateInput(graphene.InputObjectType):
     email = graphene.String()
     phone = graphene.String()
     address = graphene.String()
+    latitude = graphene.Float()
+    longitude = graphene.Float()
     eligible_for_subsidy = graphene.Boolean()
     tax_household_size = graphene.Int()
     tax_income_category = graphene.Int()
@@ -114,6 +118,10 @@ class UpdateCustomerById(graphene.Mutation):
                 customer_instance.phone = input.phone
             if 'address' in input:
                 customer_instance.address = input.address
+            if 'latitude' in input:
+                customer_instance.latitude = input.latitude
+            if 'longitude' in input:
+                customer_instance.longitude = input.longitude
             if 'eligible_for_subsidy' in input:
                 customer_instance.eligible_for_subsidy = input.eligible_for_subsidy
             if 'tax_household_size' in input:
