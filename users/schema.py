@@ -28,6 +28,7 @@ class SettingsType(DjangoObjectType):
             "company_email",
             "company_website",
             "company_identifier",
+            "company_description",
             "logo"
         )
         
@@ -39,6 +40,58 @@ class CustomUserType(DjangoObjectType):
         fields = ("id", "email", "first_name", "last_name", "is_staff", "customer_set")
     settings = graphene.Field(SettingsType)
     
+
+
+class SettingsUpdateInput(graphene.InputObjectType):
+    company_name = graphene.String()
+    company_address = graphene.String()
+    company_city = graphene.String()
+    company_state = graphene.String()
+    company_zip = graphene.String()
+    company_phone = graphene.String()
+    company_email = graphene.String()
+    company_website = graphene.String()
+    company_identifier = graphene.String()
+    company_description = graphene.String()
+    user_id = graphene.Int()
+
+class UpdateSettings(graphene.Mutation):
+    class Arguments:
+        input = SettingsUpdateInput(required=True)
+
+    settings = graphene.Field(SettingsType)
+
+    @staticmethod
+    def mutate(self, info, input=None):
+        print("input settings",input)
+        settings = Settings.objects.get(user__id=input.user_id)
+        if settings :
+            if "company_name" in input:
+                settings.company_name = input.company_name
+            if "company_address" in input:
+                settings.company_address = input.company_address
+            if "company_city" in input:
+                settings.company_city = input.company_city
+            if "company_state" in input:
+                settings.company_state = input.company_state
+            if "company_zip" in input:
+                settings.company_zip = input.company_zip
+            if "company_phone" in input:
+                settings.company_phone = input.company_phone
+            if "company_email" in input:
+                settings.company_email = input.company_email
+            if "company_website" in input:
+                settings.company_website = input.company_website
+            if "company_identifier" in input:
+                settings.company_identifier = input.company_identifier
+            if "company_description" in input:
+                settings.company_description = input.company_description
+            settings.save()
+            return UpdateSettings(settings=settings)
+        else:
+            return UpdateSettings(settings=None)
+        
+
 
 
 
@@ -60,7 +113,8 @@ class Query(ObjectType):
 
 
 class Mutation(ObjectType):
-    pass
+    update_settings = UpdateSettings.Field()
+
 
 
 schema = Schema(query=Query, mutation=Mutation)

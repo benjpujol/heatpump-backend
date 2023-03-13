@@ -32,3 +32,4 @@ class Settings(models.Model):
     company_email = models.CharField(max_length=100, blank=True)
     company_website = models.CharField(max_length=100, blank=True)
     company_identifier = models.CharField(max_length=100, blank=True)
+    company_description = models.TextField(blank=True)
