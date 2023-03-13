@@ -32,13 +32,16 @@ class WallInput(graphene.InputObjectType):
 class CreateWall(graphene.Mutation):
     class Arguments:
         input = WallInput(required=True)
+        customer_id = graphene.Int(required=True)
 
     wall = graphene.Field(WallType)
 
     @staticmethod
     def mutate(root, info, input=None):
+        building_instance = Building.objects.get(customer_id=input.customer_id)
+        default_insulation = get_default_insulation_wall(building_instance.year_built)
         wall_instance = Wall(wall_area=input.wall_area, wall_height=input.wall_height,
-                             wall_insulation_u_value=input.wall_insulation_u_value,  building_id=input.building)
+                             wall_insulation_u_value=default_insulation,  building_id=building_instance)
         wall_instance.save()
         return CreateWall(wall=wall_instance)
 
@@ -70,8 +73,8 @@ class UpdateWall(graphene.Mutation):
                     wall_instance.number_of_storeys = input.number_of_storeys
                 if "storey_height" in input:
                     wall_instance.storey_height = input.storey_height
-                if "wall_insulation_u_value" in input:
-                    wall_instance.wall_insulation_u_value = input.wall_insulation_u_value
+                
+                wall_instance.wall_insulation_u_value = get_default_insulation_wall(building_instance.year_built)
                
                 wall_instance.wall_area = calculate_wall_area(
                         wall_instance.storey_height, wall_instance.number_of_storeys, roof_instance.roof_perimeter)
@@ -119,9 +122,10 @@ class CreateRoof(graphene.Mutation):
     def mutate(root, info, input=None):
         # find the building instance based on customer id
         building_instance = Building.objects.get(customer_id=input.customer_id)
+        default_insulation = get_default_insulation_roof(building_instance.year_built)
 
         roof_instance = Roof(roof_area=input.roof_area, roof_flat_area=input.roof_flat_area, roof_perimeter=input.roof_perimeter,
-                             roof_shape=input.roof_shape, roof_type=input.roof_type, roof_insulation_u_value=input.roof_insulation_u_value, building=building_instance)
+                             roof_shape=input.roof_shape, roof_type=input.roof_type, roof_insulation_u_value=default_insulation, building=building_instance)
         roof_instance.save()
         return CreateRoof(roof=roof_instance)
 
@@ -160,8 +164,8 @@ class UpdateRoof(graphene.Mutation):
                 if "roof_type" in input:
                     roof_instance.roof_type = input.roof_type
                     # calculate roof area using your custom function
-                if "roof_insulation_u_value" in input:
-                    roof_instance.roof_insulation_u_value = input.roof_insulation_u_value
+                
+                roof_instance.roof_insulation_u_value = get_default_insulation_roof(building_instance.year_built)
 
                 if "roof_area" in input and (int(roof_instance.roof_area) != int((input.roof_area))):
                     print("roof area is changed",
@@ -192,19 +196,27 @@ class FloorInput(graphene.InputObjectType):
     floor_height = graphene.Int()
     floor_type = graphene.String()
     floor_insulation_u_value = graphene.Float()
-    building = graphene.ID()
+    
 
 
 class CreateFloor(graphene.Mutation):
     class Arguments:
         input = FloorInput(required=True)
+        customer_id = graphene.Int(required=True)
 
     floor = graphene.Field(FloorType)
 
     @staticmethod
     def mutate(root, info, input=None):
+        # find the building instance based on customer id
+        building_instance = Building.objects.get(customer_id=input.customer_id)
+        if input.floor_type:
+            default_insulation = get_default_insulation_floor(building_instance.year_built, input.floor_type)
+        else:
+            default_insulation = get_default_insulation_floor(building_instance.year_built)
+        
         floor_instance = Floor(floor_area=input.floor_area, floor_height=input.floor_height,
-                               floor_insulation_u_value=input.floor_insulation_u_value,  building_id=input.building)
+                               floor_insulation_u_value=default_insulation,  building_id=input.building)
         floor_instance.save()
         return CreateFloor(floor=floor_instance)
 
@@ -233,10 +245,14 @@ class UpdateFloor(graphene.Mutation):
 
                 if "floor_area" in input:
                     floor_instance.floor_area = input.floor_area
-                if "floor_type" in input:
-                    floor_instance.floor_type = input.floor_type
                 if "floor_insulation_u_value" in input:
                     floor_instance.floor_insulation_u_value = input.floor_insulation_u_value
+                if "floor_type" in input:
+                    floor_instance.floor_type = input.floor_type
+                    floor_instance.floor_insulation_u_value = get_default_insulation_floor(building_instance.year_built, input.floor_type)
+                
+                    
+               
                 floor_instance.save()
 
                 return UpdateFloor(floor=floor_instance)
@@ -286,14 +302,20 @@ class CreateWindow(graphene.Mutation):
         input = WindowInput(required=True)
 
     window = graphene.Field(WindowType)
+    
 
     @staticmethod
     def mutate(root, info, input=None):
         print(input)
         building_id = Building.objects.get(customer_id=input.customer_id).id
+        # find area in window_areas based on window_size_type
+        window_areas = {"small": 1, "medium": 1.5, "large": 2} 
+        window_insulations = {"single": 3, "double": 2, "triple": 1}
+        default_area = window_areas[input.window_size_type]
+        default_insulation_u_value = window_insulations[input.window_insulation_type]
         try:
-            window_instance = Window(window_area=input.window_area, window_width=input.window_width, window_height=input.window_height, window_insulation_type=input.window_insulation_type,
-                                     window_size_type=input.window_size_type, window_insulation_u_value=input.window_insulation_u_value, window_orientation=input.window_orientation, building_id=building_id)
+            window_instance = Window(window_area=default_area, window_width=input.window_width, window_height=input.window_height, window_insulation_type=input.window_insulation_type,
+                                     window_size_type=input.window_size_type, window_insulation_u_value=default_insulation_u_value, window_orientation=input.window_orientation, building_id=building_id)
             window_instance.save()
         except Exception as e:
             print(e)
@@ -319,27 +341,39 @@ class UpdateWindow(graphene.Mutation):
 
     window = graphene.Field(WindowType)
 
+    
+
     @staticmethod
     def mutate(root, info, input=None):
         print(input)
         window_instance = Window.objects.get(id=input.id)
+        window_areas = {"small": 1, "medium": 1.5, "large": 2}
+        window_insulations = {"single": 3, "double": 2, "triple": 1}
         print(window_instance)
-        if "window_area" in input:
-            window_instance.window_area = input.window_area
-        if "window_width" in input:
-            window_instance.window_width = input.window_width
-        if "window_height" in input:
-            window_instance.window_height = input.window_height
-        if "window_insulation_type" in input:
-            window_instance.window_insulation_type = input.window_insulation_type
-        if "window_size_type" in input:
-            window_instance.window_size_type = input.window_size_type
-        if "window_insulation_u_value" in input:
-            window_instance.window_insulation_u_value = input.window_insulation_u_value
-        if "window_orientation" in input:
-            window_instance.window_orientation = input.window_orientation
-        window_instance.save()
-        return UpdateWindow(window=window_instance)
+        print(input)
+        try :
+            if "window_area" in input:
+                window_instance.window_area = input.window_area
+            if "window_width" in input:
+                window_instance.window_width = input.window_width
+            if "window_height" in input:
+                window_instance.window_height = input.window_height
+            if "window_insulation_type" in input:
+                window_instance.window_insulation_type = input.window_insulation_type
+                window_instance.window_insulation_u_value = window_insulations[input.window_insulation_type]
+            if "window_size_type" in input:
+                window_instance.window_size_type = input.window_size_type
+                # find the area of the window based on the size type
+                window_instance.window_area = window_areas[input.window_size_type]
+            if "window_insulation_u_value" in input:
+                window_instance.window_insulation_u_value = input.window_insulation_u_value
+            if "window_orientation" in input:
+                window_instance.window_orientation = input.window_orientation
+            window_instance.save()
+            return UpdateWindow(window=window_instance)
+        except Exception as e:
+            print(e)
+        return UpdateWindow(window=None)
 
 
 # Radiators

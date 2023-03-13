@@ -105,6 +105,12 @@ class Window(models.Model):
     # foreign key to building
     building = models.ForeignKey(Building, on_delete=models.CASCADE)
 
+    def heat_loss(self):
+        # calculate the heat loss for the window
+        heat_loss = 0
+        heat_loss += self.window_area  * self.window_insulation_u_value
+        return heat_loss
+
 
 
 # create the radiator class

@@ -323,9 +323,34 @@ class UpdateBuildingByCustomerId(graphene.Mutation):
 
 # Estimates
 
+from graphene.types import Scalar
+
+class SavingsDict(Scalar):
+    @staticmethod
+    def serialize(value):
+        print("value", value)
+        return value
+    
+class EmissionsDict(Scalar):
+    @staticmethod
+    def serialize(value):
+        print("value", value)
+        return value
+    
 class EstimateType(DjangoObjectType):
     class Meta:
         model=Estimate
+        
+    savings = graphene.Field(SavingsDict)
+    emissions = graphene.Field(EmissionsDict)
+
+    def resolve_savings(self, info):
+        savings = self.get_savings()
+        return savings
+    
+    def resolve_emissions(self, info):
+        emissions = self.get_co2_emissions()
+        return emissions
 
 
 class UserHeatPumpType(DjangoObjectType):
