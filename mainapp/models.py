@@ -94,6 +94,7 @@ class Building(models.Model):
 
 # class for one estimate
 class Estimate(models.Model):
+    id = models.AutoField(primary_key=True)
     heat_pump = models.ForeignKey(UserHeatPump, on_delete=models.CASCADE) #the estimate is associated with a heat pump in the user catalog
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     price = models.FloatField() 

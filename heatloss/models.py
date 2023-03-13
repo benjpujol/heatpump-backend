@@ -9,10 +9,11 @@ from .utils import *
 # create the wall class
 # this class will be used to store the wall data (wall type, wall area, wall insulation, wall insulation thickness)
 class Wall(models.Model):
+    id = models.AutoField(primary_key=True)
     # define the wall area
-    wall_area = models.FloatField()
+    wall_area = models.FloatField(default=100)
     # define the wall insulation
-    wall_insulation_u_value = models.FloatField(max_length=50)
+    wall_insulation_u_value = models.FloatField(default=2, max_length=50)
     number_of_storeys = models.IntegerField(default=1)
     storey_height = models.FloatField(default=2.8)
     # foreign key to building
@@ -33,22 +34,23 @@ class Wall(models.Model):
 # create the roof class
 # this class will be used to store the roof data (roof type, roof area, roof insulation, roof insulation thickness)
 class Roof(models.Model):
+    id = models.AutoField(primary_key=True)
     # define the roof sloped area
-    roof_area = models.FloatField()
+    roof_area = models.FloatField(default=100)
     # define the roof flat area
-    roof_flat_area = models.FloatField()
+    roof_flat_area = models.FloatField(default=100)
     # define the roof perimeter
-    roof_perimeter = models.FloatField()
+    roof_perimeter = models.FloatField(default=40)
     # define the roof polygon coordinates
     roof_polygon = models.TextField(null=True, blank=True)
     # define the roof shape
-    roof_shape = models.CharField(max_length=50)
+    roof_shape = models.CharField(max_length=50, default="hip-roof")
     # define the roof_heihgt
-    roof_height = models.IntegerField()
+    roof_height = models.IntegerField(default=2)
     # define the roof type
-    roof_type = models.CharField(max_length=50)
+    roof_type = models.CharField(max_length=50, default="lost-attic")
     # define the roof insulation
-    roof_insulation_u_value = models.FloatField(max_length=50)
+    roof_insulation_u_value = models.FloatField(max_length=50, default="2")
 
     # foreign key to building
     building = models.ForeignKey(Building, on_delete=models.CASCADE)
@@ -66,12 +68,13 @@ class Roof(models.Model):
 # create the floor class
 # this class will be used to store the floor data (floor type, floor area, floor insulation, floor insulation thickness)
 class Floor(models.Model):
+    id = models.AutoField(primary_key=True)
     # define the floor area
-    floor_area = models.FloatField()
+    floor_area = models.FloatField(default=100)
     # define the type of floor (what is underneat the house) : garage, basement, crawl space, slab
-    floor_type = models.CharField(max_length=50)
+    floor_type = models.CharField(max_length=50, default="solid-ground")
     # define the floor insulation
-    floor_insulation_u_value = models.FloatField(max_length=50)
+    floor_insulation_u_value = models.FloatField(max_length=50, default="2")
     # foreign key to building
     building = models.ForeignKey(Building, on_delete=models.CASCADE)
 
@@ -85,19 +88,20 @@ class Floor(models.Model):
 # create the window class
 # this class will be used to store the window data (window type, window area, window insulation, window insulation thickness)
 class Window(models.Model):
+    id = models.AutoField(primary_key=True)
     # define the window area
-    window_area = models.IntegerField(null=True, blank=True)
+    window_area = models.IntegerField(null=True, blank=True, default=1)
     # define the window dimensions
-    window_width = models.IntegerField(null=True, blank=True)
-    window_height = models.IntegerField(null=True, blank=True)
+    window_width = models.IntegerField(null=True, blank=True, default=1)
+    window_height = models.IntegerField(null=True, blank=True, default=1)
     # define the window insulation type (single, double, triple)
-    window_insulation_type = models.CharField(max_length=50, null=True, blank=True)
+    window_insulation_type = models.CharField(max_length=50, null=True, blank=True, default="single")
     # define the window size type (small, medium, large)
-    window_size_type = models.CharField(max_length=50, null=True, blank=True)
+    window_size_type = models.CharField(max_length=50, null=True, blank=True, default="medium")
     # define the window insulation
-    window_insulation_u_value = models.FloatField(max_length=50, null=True, blank=True)
+    window_insulation_u_value = models.FloatField(max_length=50, null=True, blank=True, default=2)
     #define the window orientation
-    window_orientation = models.CharField(max_length=50, null=True, blank=True)
+    window_orientation = models.CharField(max_length=50, null=True, blank=True, default="north")
     # foreign key to building
     building = models.ForeignKey(Building, on_delete=models.CASCADE)
 
@@ -105,8 +109,9 @@ class Window(models.Model):
 
 # create the radiator class
 class Radiator(models.Model):
+    id = models.AutoField(primary_key=True)
     # define the radiator type :  cast-iron, aluminium, 
-    type = models.CharField(max_length=50)
+    type = models.CharField(max_length=50, default="cast-iron")
     # define the radiator height
     height = models.FloatField(default=1.5)
     # define the radiator width
