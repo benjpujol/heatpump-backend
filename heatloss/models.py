@@ -4,16 +4,17 @@ import math
 # Create your models here.
 # import the building class from mainapp
 from mainapp.models import Building
+from .utils import *
 
 # create the wall class
 # this class will be used to store the wall data (wall type, wall area, wall insulation, wall insulation thickness)
 class Wall(models.Model):
     # define the wall area
-    wall_area = models.IntegerField()
-    # define the wall height
-    wall_height = models.IntegerField()
+    wall_area = models.FloatField()
     # define the wall insulation
     wall_insulation_u_value = models.FloatField(max_length=50)
+    number_of_storeys = models.IntegerField(default=1)
+    storey_height = models.FloatField(default=2.8)
     # foreign key to building
     building = models.ForeignKey(Building, on_delete=models.CASCADE)
 
@@ -22,12 +23,24 @@ class Wall(models.Model):
         heat_loss = 0
         heat_loss += self.wall_area  * self.wall_insulation_u_value
         return heat_loss
+    
+    def calculate_wall_area(self):
+        roof = self.building.roof
+        roof_perimeter = roof.roof_perimeter
+        print(roof_perimeter)
+        return calculate_wall_area(self.number_of_storeys, self.storey_height,  roof_perimeter)
 
 # create the roof class
 # this class will be used to store the roof data (roof type, roof area, roof insulation, roof insulation thickness)
 class Roof(models.Model):
-    # define the roof area
-    roof_area = models.IntegerField()
+    # define the roof sloped area
+    roof_area = models.FloatField()
+    # define the roof flat area
+    roof_flat_area = models.FloatField()
+    # define the roof perimeter
+    roof_perimeter = models.FloatField()
+    # define the roof polygon coordinates
+    roof_polygon = models.TextField(null=True, blank=True)
     # define the roof shape
     roof_shape = models.CharField(max_length=50)
     # define the roof_heihgt
@@ -36,6 +49,7 @@ class Roof(models.Model):
     roof_type = models.CharField(max_length=50)
     # define the roof insulation
     roof_insulation_u_value = models.FloatField(max_length=50)
+
     # foreign key to building
     building = models.ForeignKey(Building, on_delete=models.CASCADE)
 
@@ -44,14 +58,16 @@ class Roof(models.Model):
         heat_loss = 0
         heat_loss += self.roof_area  * self.roof_insulation_u_value
         return heat_loss
-
+    
+    def calculate_roof_area(self):
+        return calculate_roof_area(self.roof_shape, self.roof_type, self.roof_perimeter, self.roof_flat_area, self.roof_height)
 
 
 # create the floor class
 # this class will be used to store the floor data (floor type, floor area, floor insulation, floor insulation thickness)
 class Floor(models.Model):
     # define the floor area
-    floor_area = models.IntegerField()
+    floor_area = models.FloatField()
     # define the type of floor (what is underneat the house) : garage, basement, crawl space, slab
     floor_type = models.CharField(max_length=50)
     # define the floor insulation
