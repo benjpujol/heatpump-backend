@@ -232,7 +232,8 @@ class BuildingInput(graphene.InputObjectType):
     temperature_setpoint=graphene.Int()
     annual_energy_bill=graphene.Int()
     annual_energy_consumption=graphene.Int()
-    customer_id=graphene.Int(required = True)
+    consumption_method=graphene.String()
+    
 
 # mutation to create building
 
@@ -262,6 +263,7 @@ class CreateBuilding(graphene.Mutation):
                     temperature_setpoint = input.temperature_setpoint,
                     annual_energy_bill = input.annual_energy_bill,
                     annual_energy_consumption = input.annual_energy_consumption,
+                    consumption_method = input.consumption_method,
                     customer = customer_instance,
                 )
                 print(building_instance)
@@ -278,13 +280,14 @@ class CreateBuilding(graphene.Mutation):
 class UpdateBuildingByCustomerId(graphene.Mutation):
     class Arguments:
         input=BuildingInput(required = True)
+        customer_id = graphene.Int(required=True)
 
     building=graphene.Field(BuildingType)
 
     @ staticmethod
-    def mutate(root, info, input = None):
+    def mutate(root, info, input = None, customer_id = None):
         print(input)
-        customer_instance=Customer.objects.get(pk = input.customer_id)
+        customer_instance=Customer.objects.get(pk = customer_id)
 
         if customer_instance:
             building_instance=Building.objects.get(
@@ -312,6 +315,8 @@ class UpdateBuildingByCustomerId(graphene.Mutation):
                     building_instance.annual_energy_bill=input.annual_energy_bill
                 if 'annual_energy_consumption' in input:
                     building_instance.annual_energy_consumption=input.annual_energy_consumption
+                if 'consumption_method' in input:
+                    building_instance.consumption_method=input.consumption_method
                 if 'customer' in input:
                     building_instance.customer=customer_instance
 

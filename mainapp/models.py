@@ -65,6 +65,7 @@ class Building(models.Model):
         default=19, null=True, blank=True)
     annual_energy_bill = models.IntegerField(null=True, blank=True)
     annual_energy_consumption = models.IntegerField(null=True, blank=True)
+    consumption_method = models.CharField(max_length=50, null=True, blank=True)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
     # function to calculate the heat loss of the building
@@ -201,6 +202,8 @@ class Estimate(models.Model):
         print(old_co2, new_co2)
 
         return {"old_co2": old_co2, "new_co2": new_co2}
+    
+   
 
 
 if __name__ == "__main__":
