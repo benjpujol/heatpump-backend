@@ -117,7 +117,7 @@ class CreateCustomer(graphene.Mutation):
                     first_name=input.first_name, last_name=input.last_name, email=input.email, phone=input.phone, address=input.address, latitude=input.latitude, longitude=input.longitude,   user=user_instance)
 
                 # create building instance with default valies
-                building = Building.objects.create(year_built=1950, square_footage=150, number_of_floors=2, occupancy_status="owner", residence_type="main", primary_heating_system="gas",
+                building = Building.objects.create(year_built=1950, square_footage=150, number_of_floors=2, occupancy_status="owner", residence_type="main", primary_heating_system="gas-boiler",
                                                 hot_water_system="boiler", secondary_heating_system=None, temperature_setpoint=19, annual_energy_bill=2000, annual_energy_consumption=30000,  customer=customer_instance)
 
                 # create roof instance with default values

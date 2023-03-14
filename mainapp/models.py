@@ -3,6 +3,9 @@ from subsidies.utils import calculate_subsidy
 # import module from subsidies app
 from subsidies.utils import calculate_subsidy, calculate_default_subsidy
 from users.models import CustomUser
+import logging
+
+logging.basicConfig(filename='example.log', level=logging.DEBUG)
 
 from usercatalog.models import UserHeatPump
 
@@ -144,10 +147,14 @@ class Estimate(models.Model):
         # get the annual heat needs of the building
         heat_needs = building.heat_needs()
 
+        print(building
+              .primary_heating_system   )
+
         old_equipment_efficiency = equipment_table[building.primary_heating_system]["efficiency"]
         new_equipment_efficiency = self.heat_pump.heat_pump.scop
         old_energy_price = energy_prices[equipment_table[building.primary_heating_system]["energy"]]
-        new_energy_price = energy_prices[equipment_table["air-water-heat-pump"]["energy"]]
+        
+        
 
         if building.annual_energy_bill:
             old_consumption = building.annual_energy_bill / old_energy_price
@@ -165,43 +172,60 @@ class Estimate(models.Model):
 
     def get_savings(self):
 
-        # get the building associated with the estimate
-        building = self.customer.building_set.first()
+        try : 
+            # get the building associated with the estimate
+            building = self.customer.building_set.first()
 
-        # get the old and new consumption
-        consumption_data = self.get_consumption()
-        old_consumption = consumption_data["old_consumption"]
-        new_consumption = consumption_data["new_consumption"]
+            # get the old and new consumption
+            consumption_data = self.get_consumption()
+            old_consumption = consumption_data["old_consumption"]
+            new_consumption = consumption_data["new_consumption"]
 
-        # get the annual heat needs of the building
+            # get the annual heat needs of the building
+            print("heat needs")
+            print(equipment_table[building.primary_heating_system]["energy"])
 
-        old_energy_price = energy_prices[equipment_table[building.primary_heating_system]["energy"]]
-        new_energy_price = energy_prices[equipment_table["air-water-heat-pump"]["energy"]]
+            
 
-        old_bill = old_consumption * old_energy_price
-        new_bill = new_consumption * new_energy_price
+            old_energy_price = energy_prices[equipment_table[building.primary_heating_system]["energy"]]
+            new_energy_price = energy_prices[equipment_table["air-water-heat-pump"]["energy"]]
 
-        savings = old_bill - new_bill
+            print("old_energy_price", old_energy_price)
 
-        return {"old_bill": old_bill, "new_bill": new_bill, "bill_savings": savings}
+            old_bill = old_consumption * old_energy_price
+            new_bill = new_consumption * new_energy_price
+
+            savings = old_bill - new_bill
+
+            return {"old_bill": old_bill, "new_bill": new_bill, "bill_savings": savings}
+        except Exception as e : 
+            logging.error(e)
+            print(e)
+            return {"old_bill": 0, "new_bill": 0, "bill_savings": 0}
 
     def get_co2_emissions(self):
-          # get the building associated with the estimate
-        building = self.customer.building_set.first()
 
-        # get the old and new consumption
-        consumption_data = self.get_consumption()
-        old_consumption = consumption_data["old_consumption"]
-        new_consumption = consumption_data["new_consumption"]
+        try :
+            # get the building associated with the estimate
+            building = self.customer.building_set.first()
 
-        old_co2_intensity = co2_intensity[equipment_table[building.primary_heating_system]["energy"]]
-        new_co2_intensity = co2_intensity[equipment_table["air-water-heat-pump"]["energy"]]
+            # get the old and new consumption
+            consumption_data = self.get_consumption()
+            old_consumption = consumption_data["old_consumption"]
+            new_consumption = consumption_data["new_consumption"]
 
-        old_co2 = old_co2_intensity*old_consumption
-        new_co2 = new_co2_intensity*new_consumption
-        print(old_co2, new_co2)
+            old_co2_intensity = co2_intensity[equipment_table[building.primary_heating_system]["energy"]]
+            new_co2_intensity = co2_intensity[equipment_table["air-water-heat-pump"]["energy"]]
 
-        return {"old_co2": old_co2, "new_co2": new_co2}
+            old_co2 = old_co2_intensity*old_consumption
+            new_co2 = new_co2_intensity*new_consumption
+            print(old_co2, new_co2)
+
+            return {"old_co2": old_co2, "new_co2": new_co2}
+        except Exception as e :
+            logging.error(e)
+            print(e)
+            return {"old_co2": 0, "new_co2": 0}
     
    
 
